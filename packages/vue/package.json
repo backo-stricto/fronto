@@ -1,0 +1,37 @@
+{
+    "name": "@backo-stricto/fronto-vue",
+    "version": "0.1.0",
+    "type": "module",
+    "types": "./dist/index.d.mts",
+    "main": "./dist/index.mjs",
+    "exports": {
+        ".": "./dist/index.mjs",
+        "./components/*": "./components/*",
+        "./package.json": "./package.json"
+    },
+    "files": [
+        "dist",
+        "src/components"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git@github:backo-stricto/fronto.git",
+        "directory": "packages/vue"
+    },
+    "publishConfig": {
+        "registry": "https://npm.pkg.github.com"
+    },
+    "scripts": {
+        "build": "tsdown src/index.ts --dts --out-dir dist --format esm",
+        "test": "echo '@backo-stricto/fronto-vue tests not implemented' && exit 0",
+        "lint": "eslint . --fix-dry-run --cache --cache-location ./node_modules/.cache/eslint/",
+        "clean": "rm -rf dist"
+    },
+    "dependencies": {
+        "@backo-stricto/fronto-core": "workspace:*"
+    },
+    "peerDependencies": {
+        "vue": "^3.5.41",
+        "vuetify": "^4.1.7"
+    }
+}

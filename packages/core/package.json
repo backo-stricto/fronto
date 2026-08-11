@@ -1,0 +1,27 @@
+{
+    "name": "@backo-stricto/fronto-core",
+    "version": "0.1.0",
+    "type": "module",
+    "types": "./dist/index.d.mts",
+    "main": "./dist/index.mjs",
+    "exports": {
+        ".": "./dist/index.mjs"
+    },
+    "files": [
+        "dist"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git@github:backo-stricto/fronto.git",
+        "directory": "packages/core"
+    },
+    "publishConfig": {
+        "registry": "https://npm.pkg.github.com"
+    },
+    "scripts": {
+        "build": "tsdown src/index.ts --dts --out-dir dist --format esm",
+        "test": "echo '@backo-stricto/fronto-core tests not implemented' && exit 0",
+        "lint": "eslint . --fix-dry-run --cache --cache-location ./node_modules/.cache/eslint/",
+        "clean": "rm -rf dist"
+    }
+}
