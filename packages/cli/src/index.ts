@@ -1,6 +1,7 @@
 import { program } from 'commander';
 import { do_init } from './init_command.js';
 import { do_generate } from './generate_command.js';
+import { do_scan } from './scan_command.js';
 
 program
     .name('fronto')
@@ -11,7 +12,7 @@ program.command('init')
     .description('Initialize frontend project with Fronto base components')
     .argument('<path_to_project>', 'Path to the project directory')
     .option('-f, --framework <framework>', 'Base framework to use (vue or react)', 'vue')
-    .action((projectPath, options) => {
+    .action((projectPath: string, options: any) => {
         console.log('Running Fronto CLI for INIT command...');
         if (options.framework !== 'vue') {
             if (options.framework == 'react') {
@@ -29,6 +30,14 @@ program.command('generate <url_to_fronto_project>')
     .action((url) => {
         console.log('Running Fronto CLI for GENERATE command...');
         do_generate(url);
+    });
+
+program.command('scan')
+    .description('Scan Fronto components in the current project')
+    .argument('<path_to_project>', 'Path to the project directory')
+    .action((projectPath: string) => {
+        console.log('Running Fronto CLI for SCAN command...');
+        do_scan(projectPath);
     });
 
 program.parse(process.argv);

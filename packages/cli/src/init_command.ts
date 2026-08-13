@@ -1,9 +1,8 @@
 import * as path from 'path';
 import * as fileSystem from 'fs';
 import * as url from 'url';
+import * as core from '@backo-stricto/fronto-core';
 
-const componentsBasePath = `fronto/components/base`;
-const componentsItemsPath = `fronto/components/items`;
 const componentsOverridesPath = `fronto/components/overrides`;
 
 
@@ -23,10 +22,10 @@ function do_init(projectPath: string, baseFramework: string): void {
     if (!fileSystem.statSync(projectPath, { throwIfNoEntry: false })) {
         fileSystem.mkdirSync(projectPath, { recursive: true });
     }
-    const destItemsPath: string = path.join(projectPath, componentsItemsPath);
+    const destItemsPath: string = path.join(projectPath, core.FRONTO_COMPONENTS_ITEMS_PATH);
     fileSystem.mkdirSync(destItemsPath, { recursive: true });
     const files: fileSystem.Dirent[] = fileSystem.readdirSync(sourceComponentsPath, { withFileTypes: true, recursive: true });
-    const targetComponentsPath: string = path.join(projectPath, componentsBasePath);
+    const targetComponentsPath: string = path.join(projectPath, core.FRONTO_COMPONENTS_BASE_PATH);
     fileSystem.mkdirSync(targetComponentsPath, { recursive: true });
     for (const file of files) {
         if (file.isFile()) {
@@ -38,10 +37,14 @@ function do_init(projectPath: string, baseFramework: string): void {
         }
     }
     console.log(`[INIT] Project initialized successfully at ${projectPath}.`);
-    const baseOverridesPath: string = path.join(projectPath, componentsOverridesPath, 'base');
-    fileSystem.mkdirSync(baseOverridesPath, { recursive: true });
+    const baseOverridesPath: string = path.join(projectPath, core.FRONTO_COMPONENTS_OVERRIDES_BASE_PATH);
+    core.FrontoVariants.forEach((variant: string) => {
+        const variantOverridesPath: string = path.join(baseOverridesPath, variant);
+        fileSystem.mkdirSync(variantOverridesPath, { recursive: true });
+        console.log(`[INIT] Created items overrides directory for variant ${variant} at ${variantOverridesPath}`);
+    });
     console.log(`[INIT] Created base overrides directory at ${baseOverridesPath}`);
-    const itemsOverridesPath: string = path.join(projectPath, componentsOverridesPath, 'items');
+    const itemsOverridesPath: string = path.join(projectPath, core.FRONTO_COMPONENTS_OVERRIDES_ITEMS_PATH);
     fileSystem.mkdirSync(itemsOverridesPath, { recursive: true });
     console.log(`[INIT] Created items overrides directory at ${itemsOverridesPath}`);
 }

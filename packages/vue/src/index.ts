@@ -1,6 +1,5 @@
-import type { FrontoComponentSource } from '@fronto/core'
+import type { FrontoComponentSource } from '@backo-stricto/fronto-core'
 
-// Source files are published so @fronto/cli can copy them into consumer projects.
 export const FRONTO_VUE_COMPONENT_SOURCES: ReadonlyArray<FrontoComponentSource> = [
     {
         strictoType: 'Bool',
