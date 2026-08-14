@@ -3,8 +3,6 @@ import * as fileSystem from 'fs';
 import * as url from 'url';
 import * as core from '@backo-stricto/fronto-core';
 
-const componentsOverridesPath = `fronto/components/overrides`;
-
 
 function do_init(projectPath: string, baseFramework: string): void {
     const choosenFramework: string = baseFramework.toLowerCase();
