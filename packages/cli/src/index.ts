@@ -2,6 +2,7 @@ import { program } from 'commander';
 import { do_init } from './init_command.js';
 import { do_generate } from './generate_command.js';
 import { do_scan } from './scan_command.js';
+import { do_showcase } from './showcase_command.js';
 
 program
     .name('fronto')
@@ -40,4 +41,14 @@ program.command('scan')
         do_scan(projectPath);
     });
 
+program.command('showcase')
+    .description('Run the Fronto showcase application')
+    .option('-f, --fronto <path_to_fronto_components>', 'Path to the Fronto components directory')
+    .option('-d, --destination  <in_user_project>', 'Destination path for the showcase application')
+    .action((options: any) => {
+        console.log(`[SHOWCASE] Fronto components path: ${options.fronto}`);
+        console.log('Running Fronto CLI for SHOWCASE command...');
+        console.log(`[SHOWCASE] Project root: ${options.destination}`);
+        do_showcase(options.fronto, options.destination);
+    });
 program.parse(process.argv);
