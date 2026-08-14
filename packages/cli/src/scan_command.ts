@@ -76,7 +76,7 @@ function generate_registry_file(projectPath: string, registry: core.ComponentReg
         });
     });
     // Write the registry record to the file
-    const registryRecordString: string = `\nexport const FRONTO_COMPONENTS_REGISTRY = ${JSON.stringify(registryRecord, null, 2)}\n`;
+    const registryRecordString: string = generate_fronto_components_registry(registryRecord);
     fileSystem.writeFileSync(registryFilePath, registryRecordString, { flag: 'a' });
 
     // Write the export statement for the registry resolve function
@@ -84,4 +84,19 @@ function generate_registry_file(projectPath: string, registry: core.ComponentReg
     fileSystem.writeFileSync(registryFilePath, exportStatement, { flag: 'a' });
 }
 
+function generate_fronto_components_registry(registryRecord: core.ComponentRegistry): string {
+    let output: string = `export const FRONTO_COMPONENTS_REGISTRY: Record<StrictoType, Record<FrontoVariant, object>> = {\n`;
+    for (const [strictoType, variants] of Object.entries(registryRecord)) {
+        output += `  ${strictoType}: {\n`;
+        for (const variant of Object.keys(variants)) {
+            const componentIdentifier: string = variants[variant];
+            output += `    ${variant}: ${componentIdentifier},\n`;
+        }
+        output += `  },\n`;
+    }
+    output += `};\n`;
+    return output;
+}
+
+export { generate_fronto_components_registry };
 export { do_scan };
