@@ -20,8 +20,33 @@ More specifically ADRs (Architecture Decision Records) are recorded under `docs/
 
 Install the `@backo-stricto/fronto-cli` package.
 
+### Initialize your project with Fronto base components
+
 Use the following command at your project's root to initialize it with fronto base components:
 
 ```bash
-$ npx --package=@backo-stricto/fronto-cli -- init ./src
+$ npx --package=@backo-stricto/fronto-cli fronto -- init <project's src root path>
 ```
+
+Basically it will copy the Fronto base components assets into your project, below `<argument_path>/fronto`.
+
+### Scan the components and create the registry
+
+```bash
+npx --package=@backo-stricto/fronto-cli fronto -- scan <project's src root path>
+```
+
+It will scan `<project's src root path>/fronto` and create a `registry.ts` below `<project's src root path>/fronto/components`.
+
+### Create the showcase mini-app
+
+It allows the user to visualize the components being used, and their overriden version if any.
+
+```bash
+npx --package=@backo-stricto/fronto-cli fronto -- showcase -f <path to Fronto components in user's project> -d <destination path of the Showcase mini-app>
+```
+
+A fully standalone minimal showcase app will be setup.
+Go to `<destination path>/showcase` and run `npm i` to install dependencies.
+
+Then run `npm run dev` to visualize the app at `http://localhost:5173`
