@@ -35,10 +35,10 @@ function do_showcase(frontoComponentsPath: string, projectRootPath: string): voi
     fileSystem.cpSync(showcaseAssetsPath, showcaseDirPath, { recursive: true });
     console.log(`[SHOWCASE] Showcase entry point created successfully at ${showcaseEntryPointPath}.`);
     // Generate the showcase registry file
-    generate_showcase_registry_file(projectRootPath, frontoComponentsPath);
+    generate_showcase_registry_file(frontoComponentsPath, projectRootPath);
 }
 
-function generate_showcase_registry_file(projectRootPath: string, frontoComponentsPath: string): void {
+function generate_showcase_registry_file(frontoComponentsPath: string, projectRootPath: string): void {
     // create the file showcase_registry.ts file in the project directory if it doesn't exist
     const showcaseRegistryFilePath: string = path.join(projectRootPath, 'showcase', 'registry.ts');
     if (!fileSystem.existsSync(showcaseRegistryFilePath)) {
