@@ -31,7 +31,6 @@
         "@backo-stricto/fronto-core": "workspace:*"
     },
     "peerDependencies": {
-        "vue": "^3.5.41",
-        "vuetify": "^4.1.7"
+        "vue": "^3.5.41"
     }
 }
