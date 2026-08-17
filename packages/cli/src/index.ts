@@ -43,9 +43,17 @@ program.command('scan')
 
 program.command('showcase')
     .description('Run the Fronto showcase application')
-    .option('-f, --fronto <path_to_fronto_components>', 'Path to the Fronto components directory')
-    .option('-d, --destination  <in_user_project>', 'Destination path for the showcase application')
+    .option('-f, --fronto <path_to_fronto_components_in_user_project>', 'Path to the Fronto components directory in the user project')
+    .option('-d, --destination  <path_to_showcase_application_in_user_project>', 'Destination path for the showcase application in the user project')
     .action((options: any) => {
+        if (!options.fronto) {
+            console.error('[SHOWCASE] Error: Path to Fronto components is required. Use the -f or --fronto option to specify the path.');
+            return;
+        }
+        if (!options.destination) {
+            console.error('[SHOWCASE] Error: Destination path for the showcase application is required. Use the -d or --destination option to specify the path.');
+            return;
+        }
         console.log(`[SHOWCASE] Fronto components path: ${options.fronto}`);
         console.log('Running Fronto CLI for SHOWCASE command...');
         console.log(`[SHOWCASE] Project root: ${options.destination}`);
