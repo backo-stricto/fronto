@@ -1,23 +1,25 @@
 import js from '@eslint/js'
 import tseslint from 'typescript-eslint'
+import eslintConfigPrettier from "eslint-config-prettier/flat";
+import eslintPluginPrettierRecommanded from "eslint-plugin-prettier/recommended";
 import pluginVue from 'eslint-plugin-vue'
 import vueParser from 'vue-eslint-parser'
 import globals from 'globals'
 
 export default [
     {
+
         ignores: ['**/dist/**', '**/node_modules/**', '**/.pnpm/**'],
     },
 
     js.configs.recommended,
     ...tseslint.configs.recommended,
-
     {
         files: [
             'packages/core/**/*.ts',
-            'packages/core/**/*.tsx',
             'packages/cli/**/*.ts',
-            'packages/cli/**/*.tsx',
+            'packages/vue/**/*.ts',
+            'packages/vue/**/*.vue',
         ],
         languageOptions: {
             parserOptions: {
@@ -28,7 +30,6 @@ export default [
             },
         },
     },
-
     ...pluginVue.configs['flat/strongly-recommended'],
     {
         files: ['packages/vue/**/*.vue'],
@@ -47,4 +48,8 @@ export default [
             'vue/no-v-html': 'off',
         },
     },
+    {
+        extends: [eslintConfigPrettier],
+    },
+    eslintPluginPrettierRecommanded
 ]
