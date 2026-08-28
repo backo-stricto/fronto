@@ -8,9 +8,12 @@ Showcase is a developer-oriented application whose purpose is to demonstrate the
 
 ### fronto-core package dependency resolution
 
-Since the package `fronto-core` is hosted on Github, `@backo-stricto` domain is configured to be sourced from that repository with a `.npmrc` configurationb:
+Fronto-core package dependency resolution is up to the hosting application (the application under which 'Showcase' app is installed in a sub-directory).
+Since Fronto components are located in a sibling directory relatively to Showcase app, the 'fronto-core' dependency must be resolved at user's app level (root `package.json`).
 
-```
+Since the package `fronto-core` is hosted on Github, `@backo-stricto` domain resolution must be configured to be sourced from that repository with a `.npmrc` configuration located in the project's root:
+
+```bash
 @backo-stricto:registry=https://npm.pkg.github.com
 always-auth=true
 ```
