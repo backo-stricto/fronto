@@ -1,19 +1,58 @@
 <script setup lang="ts">
-import {
-    FRONTO_COMPONENTS_REGISTRY,
-    resolveFrontoComponent,
-} from "./registry";
+    import {
+        FRONTO_COMPONENTS_REGISTRY,
+        resolveFrontoComponent,
+    } from "./registry";
+    import {
+        FrontoStrictoType,
+        FRONTO_DEFAULT_PROPS,
+        FRONTO_TYPE_DEFAULTS
+    } from "@backo-stricto/fronto-core";
 
-const VARIANTS = Array.from(
-    new Set(
-        Object.values(FRONTO_COMPONENTS_REGISTRY as Record<string, Record<string, unknown>>)
-            .flatMap((variants) => Object.keys(variants)),
-    ),
-);
+    const showCaseOverrides: Record<FrontoStrictoType, Record<string, unknown>> = {
+        Bool: {
+            enum: () => [true, false, null],
+        },
+        Int: {
+            defaultValue: 0,
+        },
+        Float: {
+            defaultValue: 0.0,
+        },
+        String: {
+            defaultValue: '',
+        },
+        Datetime: {
+            defaultValue: new Date(),
+        },
+        Bytes: {
+            defaultValue: new Uint8Array(),
+        },
+        Dict: {
+            defaultValue: {},
+        },
+    }
 
-const VARIANT_COLUMNS_COUNT = Math.max(VARIANTS.length, 1);
+    const VARIANTS = Array.from(
+        new Set(
+            Object.values(FRONTO_COMPONENTS_REGISTRY as Record<string, Record<string, unknown>>)
+                .flatMap((variants) => Object.keys(variants)),
+        ),
+    );
 
-const gridTemplateColumns = `minmax(140px, 180px) repeat(${VARIANT_COLUMNS_COUNT}, minmax(220px, 1fr))`;
+    const VARIANT_COLUMNS_COUNT = Math.max(VARIANTS.length, 1);
+
+    const gridTemplateColumns = `minmax(140px, 180px) repeat(${VARIANT_COLUMNS_COUNT}, minmax(220px, 1fr))`;
+
+    function getComponentProps(type: FrontoStrictoType) {
+        return {
+            ...FRONTO_DEFAULT_PROPS,
+            ...FRONTO_TYPE_DEFAULTS[type],
+            ...showCaseOverrides[type],
+            onChange: undefined,
+        }
+    }
+
 </script>
 
 <template>
@@ -40,7 +79,8 @@ const gridTemplateColumns = `minmax(140px, 180px) repeat(${VARIANT_COLUMNS_COUNT
                 </div>
 
                 <div v-for="variant in VARIANTS" :key="`${type}-${variant}`" class="border-b border-base-200 px-4 py-3">
-                    <component v-if="variant in variants" :is="resolveFrontoComponent(type, variant)" />
+                    <component v-if="variant in variants" :is="resolveFrontoComponent(type, variant)"
+                        :props="getComponentProps(type)" />
                 </div>
             </template>
         </section>

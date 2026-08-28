@@ -1,33 +1,13 @@
 <script setup lang="ts">
     import { computed } from 'vue'
+    import { FrontoProps, resolveFrontoProps } from '@backo-stricto/fronto-core'
 
-    type BoolValue = boolean | null
+    type BoolValue = boolean | null;
+    type BoolProps = FrontoProps<'Bool'>;
 
-    type BoolProps = {
-        onChange?: (value: BoolValue) => Promise<void> | void
-        exist?: boolean
-        readable?: boolean
-        writable?: boolean
-        description?: string
-        required?: boolean
-        defaultValue?: any
-        value?: any
-        errorMessage?: string
-        enum?: Array<any>
-    }
+    const props = defineProps<BoolProps>()
 
-    const props = withDefaults(defineProps<BoolProps>(), {
-        onChange: undefined,
-        exist: true,
-        readable: true,
-        writable: false,
-        description: '',
-        required: false,
-        defaultValue: null,
-        value: undefined,
-        errorMessage: '',
-        enum: () => [],
-    })
+    const resolvedProps = resolveFrontoProps('Bool', props)
 
     function normalizeBool(value: any): BoolValue | undefined {
         if (value === true || value === false || value === null) {
@@ -71,13 +51,7 @@
         return ''
     })
 
-    const visibleLabel = computed(() => {
-        if (!props.exist) {
-            return 'not existing'
-        }
-        if (!props.readable) {
-            return 'hidden'
-        }
+    const valueLabel = computed(() => {
         if (resolvedValue.value === null) {
             return 'null'
         }
@@ -89,9 +63,13 @@
 </script>
 
 <template>
-    <div class="flex flex-col gap-1" :class="{ 'opacity-60': !exist || !readable }">
-        <span class="badge badge-outline badge-sm uppercase" :class="{ 'opacity-60': resolvedValue === null }">{{
-            visibleLabel }}</span>
+    <div v-if="exist" class="flex flex-col gap-1" :class="{ 'opacity-60': !readable }">
+        <span class="badge badge-outline badge-sm uppercase" :class="{ 'opacity-60': resolvedValue === null }">
+            <template v-if="readable">{{ valueLabel }}</template>
+            <template v-else>
+                <span aria-label="hidden value">····</span>
+            </template>
+        </span>
         <small v-if="description" class="text-xs text-base-content/60">{{ description }}</small>
         <small v-if="effectiveError" class="text-xs text-error">{{ effectiveError }}</small>
     </div>
