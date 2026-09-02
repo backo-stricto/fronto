@@ -1,41 +1,35 @@
 <script setup lang="ts">
     import { computed } from 'vue'
-    import { FrontoProps, resolveFrontoProps } from '@backo-stricto/fronto-core'
+    import { FrontoProps } from '@backo-stricto/fronto-core'
 
-    type BoolValue = boolean | null;
     type BoolProps = FrontoProps<'Bool'>;
 
     const props = defineProps<BoolProps>()
 
-    const resolvedProps = resolveFrontoProps('Bool', props)
-
-    function normalizeBool(value: any): BoolValue | undefined {
-        if (value === true || value === false || value === null) {
+    function normalizeBool(value: unknown): boolean | undefined {
+        if (typeof value === 'boolean') {
             return value
         }
         return undefined
     }
 
-    function resolveSourceValue(): any {
-        if (props.value !== undefined) {
-            return props.value
+    const resolvedValue = computed<boolean>(() => {
+        const val = normalizeBool(props.value)
+        if (typeof val === 'boolean') {
+            return val
         }
-        return props.defaultValue
-    }
-
-    const resolvedValue = computed<BoolValue>(() => {
-        const source = resolveSourceValue()
-        return normalizeBool(source) ?? null
+        return normalizeBool(props.defaultValue) ?? false
     })
 
-    const allowedValues = computed<BoolValue[]>(() => {
-        return props.enum
+    const allowedValues = computed<boolean[]>(() => {
+        const enumValues: unknown[] = Array.isArray(props.enum) ? props.enum : []
+        return enumValues
             .map((item) => normalizeBool(item))
-            .filter((item): item is BoolValue => item !== undefined)
+            .filter((item): item is boolean => item !== undefined)
     })
 
     const enumInvalid = computed(() => {
-        if (allowedValues.value.length === 0 || resolvedValue.value === null) {
+        if (allowedValues.value.length === 0) {
             return false
         }
         return !allowedValues.value.includes(resolvedValue.value)
@@ -52,10 +46,7 @@
     })
 
     const valueLabel = computed(() => {
-        if (resolvedValue.value === null) {
-            return 'null'
-        }
-        if (resolvedValue.value === true) {
+        if (resolvedValue.value) {
             return 'true'
         }
         return 'false'
@@ -63,14 +54,17 @@
 </script>
 
 <template>
-    <div v-if="exist" class="flex flex-col gap-1" :class="{ 'opacity-60': !readable }">
-        <span class="badge badge-outline badge-sm uppercase" :class="{ 'opacity-60': resolvedValue === null }">
-            <template v-if="readable">{{ valueLabel }}</template>
-            <template v-else>
-                <span aria-label="hidden value">····</span>
-            </template>
-        </span>
-        <small v-if="description" class="text-xs text-base-content/60">{{ description }}</small>
-        <small v-if="effectiveError" class="text-xs text-error">{{ effectiveError }}</small>
+    <div v-if="exist" class="inline-flex items-center gap-1.5" :class="{ 'opacity-60': !readable }">
+        <div class="tooltip tooltip-top z-50" :data-tip="props.description">
+            <span class="text-xs font-semibold uppercase tracking-wide cursor-default">
+                <template v-if="readable">{{ valueLabel }}</template>
+                <template v-else>
+                    <span aria-label="hidden value">····</span>
+                </template>
+            </span>
+        </div>
+        <div v-if="effectiveError" class="tooltip tooltip-error inline-flex items-center" :data-tip="effectiveError">
+            <span class="text-error cursor-help text-xs">⚠️</span>
+        </div>
     </div>
 </template>
