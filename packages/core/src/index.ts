@@ -20,38 +20,38 @@ export interface FrontoFieldBase {
 
 export interface FrontoBoolField extends FrontoFieldBase {
     strictoType: 'Bool'
-    defaultValue?: boolean | null
+    defaultValue?: boolean
 }
 
 export interface FrontoIntField extends FrontoFieldBase {
     strictoType: 'Int'
     min?: number
     max?: number
-    defaultValue?: number | null
+    defaultValue?: number
 }
 
 export interface FrontoFloatField extends FrontoFieldBase {
     strictoType: 'Float'
     min?: number
     max?: number
-    defaultValue?: number | null
+    defaultValue?: number
 }
 
 export interface FrontoStringField extends FrontoFieldBase {
     strictoType: 'String'
     patterns?: string[]
     enumValues?: string[]
-    defaultValue?: string | null
+    defaultValue?: string
 }
 
 export interface FrontoDatetimeField extends FrontoFieldBase {
     strictoType: 'Datetime'
-    defaultValue?: string | null
+    defaultValue?: string
 }
 
 export interface FrontoBytesField extends FrontoFieldBase {
     strictoType: 'Bytes'
-    defaultValue?: string | null
+    defaultValue?: string
 }
 
 export interface FrontoDictField extends FrontoFieldBase {
@@ -124,26 +124,26 @@ export const FRONTO_GENERATED_CODE_NOTICE: string = `\
 export type ComponentRegistry = Record<string, Record<string, string>>
 
 type FrontoTypeMap = {
-    Bool: boolean | null
-    Int: number | null
-    Float: number | null
-    String: string | null
-    Datetime: Date | null
-    Bytes: Uint8Array | null
-    Dict: Record<string, unknown> | null
+    Bool: boolean
+    Int: number
+    Float: number
+    String: string
+    Datetime: Date
+    Bytes: Uint8Array
+    Dict: Record<string, unknown>
 }
 
 export interface FrontoComponentProps<TValue = unknown> {
-    exist: boolean,
-    readable: boolean,
-    writable: boolean,
-    required: boolean,
-    description: string,
-    errorMessage: string,
-    defaultValue: TValue | null,
-    value: TValue | null,
-    enum: TValue[] | undefined,
-    onChange?: (value: TValue) => void,
+    exist?: boolean
+    readable?: boolean
+    writable?: boolean
+    required?: boolean
+    description?: string
+    errorMessage?: string
+    defaultValue: TValue
+    value?: TValue
+    enum?: TValue[]
+    onChange?: (value: TValue) => void
 }
 
 export type FrontoProps<T extends keyof FrontoTypeMap> = FrontoComponentProps<FrontoTypeMap[T]>
@@ -159,48 +159,50 @@ export const FRONTO_DEFAULT_PROPS = {
     value: undefined,
     enum: undefined,
     onChange: undefined,
-} satisfies FrontoComponentProps<unknown>
+} satisfies Partial<FrontoComponentProps<unknown>>
 
 export const FRONTO_TYPE_DEFAULTS = {
     Bool: {
         value: true,
-        defaultValue: false,
+        defaultValue: true,
         enum: [true, false],
     },
     Int: {
         value: 0,
         defaultValue: 0,
-        enum: undefined
+        enum: undefined,
     },
     Float: {
         value: 0,
         defaultValue: 0,
-        enum: undefined
+        enum: undefined,
     },
     String: {
         value: '',
-        defaultValue: null,
-        enum: undefined
+        defaultValue: '',
+        enum: undefined,
     },
     Datetime: {
-        value: null,
-        defaultValue: null,
-        enum: undefined
+        value: new Date(0),
+        defaultValue: new Date(0),
+        enum: undefined,
     },
     Bytes: {
-        value: null,
-        defaultValue: null,
-        enum: undefined
+        value: new Uint8Array(),
+        defaultValue: new Uint8Array(),
+        enum: undefined,
     },
     Dict: {
-        value: null,
-        defaultValue: null,
-        enum: undefined
-    }
+        value: {},
+        defaultValue: {},
+        enum: undefined,
+    },
 } satisfies Record<keyof FrontoTypeMap, Partial<FrontoComponentProps<unknown>>>
 
-export function resolveFrontoProps<T extends keyof FrontoTypeMap>
-    (type: T, provided: FrontoComponentProps<FrontoTypeMap[T]>): FrontoComponentProps<FrontoTypeMap[T]> {
+export function resolveFrontoProps<T extends keyof FrontoTypeMap>(
+    type: T,
+    provided?: Partial<FrontoComponentProps<FrontoTypeMap[T]>>,
+): FrontoComponentProps<FrontoTypeMap[T]> {
     const typeDefaults = FRONTO_TYPE_DEFAULTS[type] || {}
     return {
         ...FRONTO_DEFAULT_PROPS,
