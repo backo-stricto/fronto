@@ -1,40 +1,54 @@
 import * as path from 'path';
 import * as fileSystem from 'fs';
 import * as core from '@backo-stricto/fronto-core';
+import * as tui from './common.js';
+import pc from 'picocolors';
 import { exit } from 'process';
 
 
 function do_scan(projectPath: string): void {
     const projectComponentsPath: string = path.join(projectPath, core.FRONTO_COMPONENTS_BASE_PATH);
-    console.log(`[SCAN] Scanning project at ${projectPath} for Fronto components...`);
+    tui.finishLine(`${tui.commandInfo('SCAN')} Scanning Fronto components in project [ ${pc.inverse(projectPath)} ]`);
     // Loop over the stricto types and variants defined in the core package and check if the corresponding component files exist in the project
     // let importStatement: string = ``;
     const baseComponentsRegistry: core.ComponentRegistry = {};
     core.StrictoTypes.forEach((strictoType: string) => {
         baseComponentsRegistry[strictoType] = {};
+        const missing: string[] = [];
+        const overrides: string[] = [];
         core.FrontoVariants.forEach((variant: string) => {
             const componentFilePath: string = path.join(projectComponentsPath, variant, `${strictoType}.vue`);
-            console.log(`[SCAN] Checking for component file: ${componentFilePath}`);
+            tui.replaceLine(`${tui.commandInfo('SCAN')} Components scanning for [ ${pc.inverse(strictoType)} / ${pc.inverse(variant)} ]`);
             // test if the component file exists
             if (fileSystem.existsSync(componentFilePath)) {
-                console.log(`[SCAN] Found component file: ${componentFilePath}`);
-                // importStatement = `import ${strictoType}${variant} from './base/${variant}/${strictoType}.vue'\n`;
                 baseComponentsRegistry[strictoType][variant] ??= `./base/${variant}/${strictoType}.vue`;
                 // test if Component has been overridden in the project by checking if the component file exists in the overrides directory
                 const overrideComponentFilePath: string = path.join(projectPath, core.FRONTO_COMPONENTS_OVERRIDES_BASE_PATH, variant, `${strictoType}.vue`);
                 if (fileSystem.existsSync(overrideComponentFilePath)) {
-                    console.log(`[SCAN] Found override component file: ${overrideComponentFilePath}`);
-                    // importStatement = `import ${strictoType}${variant} from './overrides/base/${variant}/${strictoType}.vue'\n`;
+                    overrides.push(`${overrideComponentFilePath}`);
                     baseComponentsRegistry[strictoType][variant] = `./overrides/base/${variant}/${strictoType}.vue`;
                 }
                 // append the import statement to the registry.ts file
                 // fileSystem.writeFileSync(registryFilePath, importStatement, { flag: 'a' });
             } else {
-                console.log(`[SCAN] [WARN] Component file not found: ${componentFilePath}`);
+                missing.push(`${componentFilePath}`);
             }
         });
-        console.log(`[SCAN] - Scan completed for ${strictoType}.`);
-        console.log(`[SCAN] - Base Components Registry: ${JSON.stringify(baseComponentsRegistry, null, 2)}`);
+        if (missing.length === 0) {
+            tui.finishLine(`${tui.commandInfo('SCAN')} Components scanning for [ ${pc.inverse(strictoType)} ] [ ${pc.green('DONE')} ] [ ${pc.green('COMPLETE')} ]`);
+        } else {
+            tui.finishLine(`${tui.commandInfo('SCAN')} Components scanning for [ ${pc.inverse(strictoType)} ] [ ${pc.green('DONE')} ] [ ${pc.red('MISSING')} ]`);
+            missing.forEach((missingFile: string) => {
+                tui.finishLine(`${tui.errorMark()} ${missingFile}`);
+            });
+        }
+        if (overrides.length > 0) {
+            tui.info();
+            tui.finishLine(`${tui.commandInfo('SCAN')} ${tui.info()} Found override component files for ${strictoType}:`);
+            overrides.forEach((overrideFile: string) => {
+                tui.finishLine(`${tui.infoMark()} ${overrideFile}`);
+            });
+        }
         generate_registry_file(projectPath, baseComponentsRegistry);
     })
 }

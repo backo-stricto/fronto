@@ -4,19 +4,20 @@ import * as url from 'url';
 import * as core from '@backo-stricto/fronto-core';
 
 
-function do_init(projectPath: string, baseFramework: string): void {
+
+function do_install(projectPath: string, baseFramework: string): void {
     const choosenFramework: string = baseFramework.toLowerCase();
     const packageRoot = path.dirname(url.fileURLToPath(import.meta.resolve(`@backo-stricto/fronto-${choosenFramework}/package.json`)));
     const sourceComponentsPath = path.join(packageRoot, 'src/components');
     switch (baseFramework.toLowerCase()) {
         case 'vue':
-            console.log(`[INIT] Initializing project at ${projectPath} with basic Vue Fronto components...`);
+            console.log(`[INSTALL] Initializing project at ${projectPath} with basic Vue Fronto components...`);
             break;
         default:
-            console.error(`[INIT] Unsupported base framework: ${baseFramework}. Supported frameworks: vue`);
+            console.error(`[INSTALL] Unsupported base framework: ${baseFramework}. Supported frameworks: vue`);
             return;
     }
-    console.log(`[INIT] Initializing project at ${projectPath} with basic ${baseFramework} Fronto components...`);
+    console.log(`[INSTALL] Initializing project at ${projectPath} with basic ${baseFramework} Fronto components...`);
     if (!fileSystem.statSync(projectPath, { throwIfNoEntry: false })) {
         fileSystem.mkdirSync(projectPath, { recursive: true });
     }
@@ -29,22 +30,22 @@ function do_init(projectPath: string, baseFramework: string): void {
         if (file.isFile()) {
             const componentsCategoryDir: string = file.parentPath.replace(sourceComponentsPath, '');
             const componentTargetPath: string = path.join(targetComponentsPath, componentsCategoryDir, file.name);
-            console.log(`[INIT] Copying file ${file.parentPath}/${file.name} to ${componentTargetPath}`);
+            console.log(`[INSTALL] Copying file ${file.parentPath}/${file.name} to ${componentTargetPath}`);
             fileSystem.mkdirSync(path.join(targetComponentsPath, componentsCategoryDir), { recursive: true });
             fileSystem.copyFileSync(path.join(file.parentPath, file.name), componentTargetPath);
         }
     }
-    console.log(`[INIT] Project initialized successfully at ${projectPath}.`);
+    console.log(`[INSTALL] Project initialized successfully at ${projectPath}.`);
     const baseOverridesPath: string = path.join(projectPath, core.FRONTO_COMPONENTS_OVERRIDES_BASE_PATH);
     core.FrontoVariants.forEach((variant: string) => {
         const variantOverridesPath: string = path.join(baseOverridesPath, variant);
         fileSystem.mkdirSync(variantOverridesPath, { recursive: true });
-        console.log(`[INIT] Created items overrides directory for variant ${variant} at ${variantOverridesPath}`);
+        console.log(`[INSTALL] Created items overrides directory for variant ${variant} at ${variantOverridesPath}`);
     });
-    console.log(`[INIT] Created base overrides directory at ${baseOverridesPath}`);
+    console.log(`[INSTALL] Created base overrides directory at ${baseOverridesPath}`);
     const itemsOverridesPath: string = path.join(projectPath, core.FRONTO_COMPONENTS_OVERRIDES_ITEMS_PATH);
     fileSystem.mkdirSync(itemsOverridesPath, { recursive: true });
-    console.log(`[INIT] Created items overrides directory at ${itemsOverridesPath}`);
+    console.log(`[INSTALL] Created items overrides directory at ${itemsOverridesPath}`);
 }
 
-export { do_init };
+export { do_install };
