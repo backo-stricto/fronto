@@ -1,17 +1,28 @@
 <script setup lang="ts">
     import {
         FRONTO_COMPONENTS_REGISTRY,
+        FrontoComponentProps,
+        StrictoTypes,
+        FrontoTypeMap,
         resolveFrontoComponent,
     } from "./registry";
     import {
         FrontoStrictoType,
         FRONTO_DEFAULT_PROPS,
-        FRONTO_TYPE_DEFAULTS
+        FRONTO_TYPE_DEFAULTS,
+        resolveFrontoProps
     } from "@backo-stricto/fronto-core";
 
-    const showCaseOverrides: Record<FrontoStrictoType, Record<string, unknown>> = {
+    const showCaseOverrides: Record<FrontoStrictoType, Partial<FrontoComponentProps<unknown>>> = {
         Bool: {
-            enum: () => [true, false, null],
+            exist: true,
+            readable: true,
+            writable: true,
+            description: 'A boolean value',
+            required: false,
+            defaultValue: false,
+            value: false,
+            enum: [true, false],
         },
         Int: {
             defaultValue: 0,
@@ -44,13 +55,10 @@
 
     const gridTemplateColumns = `minmax(140px, 180px) repeat(${VARIANT_COLUMNS_COUNT}, minmax(220px, 1fr))`;
 
-    function getComponentProps(type: FrontoStrictoType) {
-        return {
-            ...FRONTO_DEFAULT_PROPS,
-            ...FRONTO_TYPE_DEFAULTS[type],
-            ...showCaseOverrides[type],
-            onChange: undefined,
-        }
+    function getComponentProps(type: FrontoStrictoType): FrontoComponentProps<FrontoTypeMap[typeof type]> {
+        const props = resolveFrontoProps(type, showCaseOverrides[type]);
+        console.log('[ SHOWCASE ] getComponentProps', type, props);
+        return props;
     }
 
 </script>
@@ -80,7 +88,7 @@
 
                 <div v-for="variant in VARIANTS" :key="`${type}-${variant}`" class="border-b border-base-200 px-4 py-3">
                     <component v-if="variant in variants" :is="resolveFrontoComponent(type, variant)"
-                        :props="getComponentProps(type)" />
+                        v-bind="getComponentProps(type)" />
                 </div>
             </template>
         </section>
