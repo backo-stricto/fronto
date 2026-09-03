@@ -1,6 +1,7 @@
 <script setup lang="ts">
     import { computed } from 'vue'
     import { FrontoProps } from '@backo-stricto/fronto-core'
+    import DisplayField from '../DisplayField.vue'
 
     type BoolProps = FrontoProps<'Bool'>;
 
@@ -54,17 +55,15 @@
 </script>
 
 <template>
-    <div v-if="exist" class="inline-flex items-center gap-1.5" :class="{ 'opacity-60': !readable }">
-        <div class="tooltip tooltip-top z-50" :data-tip="props.description">
+    <DisplayField variant="display" :exist="props.exist" :readable="props.readable" :description="props.description"
+        :error-message="effectiveError">
+        <template #default="{ disabled }">
             <span class="text-xs font-semibold uppercase tracking-wide cursor-default">
                 <template v-if="readable">{{ valueLabel }}</template>
                 <template v-else>
                     <span aria-label="hidden value">····</span>
                 </template>
             </span>
-        </div>
-        <div v-if="effectiveError" class="tooltip tooltip-error inline-flex items-center" :data-tip="effectiveError">
-            <span class="text-error cursor-help text-xs">⚠️</span>
-        </div>
-    </div>
+        </template>
+    </DisplayField>
 </template>

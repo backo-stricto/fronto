@@ -1,61 +1,36 @@
-<script lang="ts" setup>
+<script setup lang="ts">
     import { computed } from 'vue'
+    import { FrontoProps } from '@backo-stricto/fronto-core'
+    import DisplayField from '../DisplayField.vue'
 
-    type BoolValue = boolean | null
+    type BoolProps = FrontoProps<'Bool'>;
 
-    type BoolProps = {
-        onChange?: (value: BoolValue) => Promise<void> | void
-        exist?: boolean
-        readable?: boolean
-        writable?: boolean
-        description?: string
-        required?: boolean
-        defaultValue?: any
-        value?: any
-        errorMessage?: string
-        enum?: Array<any>
-    }
+    const props = defineProps<BoolProps>()
 
-    const props = withDefaults(defineProps<BoolProps>(), {
-        onChange: undefined,
-        exist: true,
-        readable: true,
-        writable: false,
-        description: '',
-        required: false,
-        defaultValue: null,
-        value: undefined,
-        errorMessage: '',
-        enum: () => [],
-    })
-
-    function normalizeBool(value: any): BoolValue | undefined {
-        if (value === true || value === false || value === null) {
+    function normalizeBool(value: unknown): boolean | undefined {
+        if (typeof value === 'boolean') {
             return value
         }
         return undefined
     }
 
-    function resolveSourceValue(): any {
-        if (props.value !== undefined) {
-            return props.value
+    const resolvedValue = computed<boolean>(() => {
+        const val = normalizeBool(props.value)
+        if (typeof val === 'boolean') {
+            return val
         }
-        return props.defaultValue
-    }
-
-    const resolvedValue = computed<BoolValue>(() => {
-        const source = resolveSourceValue()
-        return normalizeBool(source) ?? null
+        return normalizeBool(props.defaultValue) ?? false
     })
 
-    const allowedValues = computed<BoolValue[]>(() => {
-        return props.enum
+    const allowedValues = computed<boolean[]>(() => {
+        const enumValues: unknown[] = Array.isArray(props.enum) ? props.enum : []
+        return enumValues
             .map((item) => normalizeBool(item))
-            .filter((item): item is BoolValue => item !== undefined)
+            .filter((item): item is boolean => item !== undefined)
     })
 
     const enumInvalid = computed(() => {
-        if (allowedValues.value.length === 0 || resolvedValue.value === null) {
+        if (allowedValues.value.length === 0) {
             return false
         }
         return !allowedValues.value.includes(resolvedValue.value)
@@ -71,17 +46,8 @@
         return ''
     })
 
-    const visibleLabel = computed(() => {
-        if (!props.exist) {
-            return 'N/A'
-        }
-        if (!props.readable) {
-            return 'hidden'
-        }
-        if (resolvedValue.value === null) {
-            return 'null'
-        }
-        if (resolvedValue.value === true) {
+    const valueLabel = computed(() => {
+        if (resolvedValue.value) {
             return 'true'
         }
         return 'false'
@@ -89,8 +55,15 @@
 </script>
 
 <template>
-    <div class="inline-flex flex-col gap-0.5 leading-tight" :class="{ 'opacity-60': !exist || !readable }">
-        <span>{{ visibleLabel }}</span>
-        <small v-if="effectiveError" class="text-[0.7rem] text-error">{{ effectiveError }}</small>
-    </div>
+    <DisplayField variant="cell" :exist="props.exist" :readable="props.readable" :description="props.description"
+        :error-message="effectiveError">
+        <template #default="{ disabled }">
+            <span class="text-xs tracking-wide cursor-default">
+                <template v-if="readable">{{ valueLabel }}</template>
+                <template v-else>
+                    <span aria-label="hidden value">····</span>
+                </template>
+            </span>
+        </template>
+    </DisplayField>
 </template>

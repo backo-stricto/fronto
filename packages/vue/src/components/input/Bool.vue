@@ -1,65 +1,39 @@
 <script setup lang="ts">
     import { computed, ref } from 'vue'
+    import type { FrontoProps } from '@backo-stricto/fronto-core'
+    import InputField from '../InputField.vue'
 
-    type BoolValue = boolean | null
-
-    type BoolProps = {
-        onChange?: (value: BoolValue) => Promise<void> | void
-        exist?: boolean
-        readable?: boolean
-        writable?: boolean
-        description?: string
-        required?: boolean
-        defaultValue?: any
-        value?: any
-        errorMessage?: string
-        enum?: Array<any>
-    }
-
-    const props = withDefaults(defineProps<BoolProps>(), {
-        onChange: undefined,
-        exist: true,
-        readable: true,
-        writable: true,
-        description: '',
-        required: false,
-        defaultValue: null,
-        value: undefined,
-        errorMessage: '',
-        enum: () => [true, false, null],
-    })
+    type BoolProps = FrontoProps<'Bool'>
+    const props = defineProps<BoolProps>()
 
     const emit = defineEmits<{
-        'update:value': [value: BoolValue]
+        'update:value': [value: boolean]
     }>()
 
-    function normalizeBool(value: any): BoolValue | undefined {
-        if (value === true || value === false || value === null) {
+    function normalizeBool(value: unknown): boolean | undefined {
+        if (typeof value === 'boolean') {
             return value
         }
         return undefined
     }
 
-    function resolveSourceValue(): any {
-        if (props.value !== undefined) {
-            return props.value
+    const resolvedValue = computed<boolean>(() => {
+        const value = normalizeBool(props.value)
+        if (value !== undefined) {
+            return value
         }
-        return props.defaultValue
-    }
-
-    const resolvedValue = computed<BoolValue>(() => {
-        const source = resolveSourceValue()
-        return normalizeBool(source) ?? null
+        return normalizeBool(props.defaultValue) ?? false
     })
 
-    const allowedValues = computed<BoolValue[]>(() => {
-        return props.enum
+    const allowedValues = computed<boolean[]>(() => {
+        const enumValues: unknown[] = Array.isArray(props.enum) ? props.enum : []
+        return enumValues
             .map((item) => normalizeBool(item))
-            .filter((item): item is BoolValue => item !== undefined)
+            .filter((item): item is boolean => item !== undefined)
     })
 
     const enumInvalid = computed(() => {
-        if (allowedValues.value.length === 0 || resolvedValue.value === null) {
+        if (props.enum === undefined) {
             return false
         }
         return !allowedValues.value.includes(resolvedValue.value)
@@ -80,24 +54,13 @@
         return ''
     })
 
-    const isDisabled = computed(() => !props.exist || !props.readable || !props.writable)
-
-    const isChecked = computed(() => resolvedValue.value === true)
-
-    const checkedLabel = computed(() => {
-        if (isChecked.value) {
-            return 'true'
-        }
-        return 'false'
-    })
-
     async function handleChange(event: Event): Promise<void> {
-        if (isDisabled.value) {
+        const nextValue = (event.target as HTMLInputElement).checked
+
+        if (allowedValues.value.length === 0 && props.enum !== undefined) {
+            uiError.value = 'Enum values are not valid.'
             return
         }
-
-        const nextValue: BoolValue = (event.target as HTMLInputElement).checked
-
         if (allowedValues.value.length > 0 && !allowedValues.value.includes(nextValue)) {
             uiError.value = 'Value must be one of enum values.'
             return
@@ -110,14 +73,13 @@
 </script>
 
 <template>
-    <div class="flex flex-col gap-1.5" :class="{ 'opacity-60': isDisabled }">
-        <label class="inline-flex items-center gap-2.5">
-            <input type="checkbox" class="toggle toggle-primary" :checked="isChecked" :disabled="isDisabled"
-                @change="handleChange">
-            <span class="text-xs font-semibold uppercase tracking-wide">{{ checkedLabel }}</span>
-        </label>
-
-        <small v-if="description" class="text-xs text-base-content/60">{{ description }}</small>
-        <small v-if="effectiveError" class="text-xs text-error">{{ effectiveError }}</small>
-    </div>
+    <InputField :exist="props.exist" :readable="props.readable" :writable="props.writable"
+        :description="props.description" :error-message="effectiveError">
+        <template #default="{ disabled }">
+            <label class="inline-flex items-center gap-2.5">
+                <input type="checkbox" class="toggle toggle-primary" :checked="resolvedValue" :disabled="disabled"
+                    @change="handleChange">
+            </label>
+        </template>
+    </InputField>
 </template>
