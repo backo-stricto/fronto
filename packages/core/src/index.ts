@@ -123,7 +123,7 @@ export const FRONTO_GENERATED_CODE_NOTICE: string = `\
 
 export type ComponentRegistry = Record<string, Record<string, string>>
 
-type FrontoTypeMap = {
+export type FrontoTypeMap = {
     Bool: boolean
     Int: number
     Float: number
