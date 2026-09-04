@@ -2,28 +2,17 @@
     import { computed, ref } from 'vue'
     import type { FrontoProps } from '@backo-stricto/fronto-core'
     import InputField from '../InputField.vue'
+    import { useFrontoValue } from '../common'
+    import { normalizeBool } from '../BoolHelpers'
 
-    type BoolProps = FrontoProps<'Bool'>
-    const props = defineProps<BoolProps>()
+
+    const props = defineProps<FrontoProps<'Bool'>>()
 
     const emit = defineEmits<{
         'update:value': [value: boolean]
     }>()
 
-    function normalizeBool(value: unknown): boolean | undefined {
-        if (typeof value === 'boolean') {
-            return value
-        }
-        return undefined
-    }
-
-    const resolvedValue = computed<boolean>(() => {
-        const value = normalizeBool(props.value)
-        if (value !== undefined) {
-            return value
-        }
-        return normalizeBool(props.defaultValue) ?? false
-    })
+    const resolvedValue = useFrontoValue(props, normalizeBool)
 
     const allowedValues = computed<boolean[]>(() => {
         const enumValues: unknown[] = Array.isArray(props.enum) ? props.enum : []

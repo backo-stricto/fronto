@@ -2,25 +2,13 @@
     import { computed } from 'vue'
     import { FrontoProps } from '@backo-stricto/fronto-core'
     import DisplayField from '../DisplayField.vue'
+    import { useFrontoValue } from '../common'
+    import { normalizeBool } from '../BoolHelpers'
 
-    type BoolProps = FrontoProps<'Bool'>;
 
-    const props = defineProps<BoolProps>()
+    const props = defineProps<FrontoProps<'Bool'>>()
 
-    function normalizeBool(value: unknown): boolean | undefined {
-        if (typeof value === 'boolean') {
-            return value
-        }
-        return undefined
-    }
-
-    const resolvedValue = computed<boolean>(() => {
-        const val = normalizeBool(props.value)
-        if (typeof val === 'boolean') {
-            return val
-        }
-        return normalizeBool(props.defaultValue) ?? false
-    })
+    const resolvedValue = useFrontoValue(props, normalizeBool)
 
     const allowedValues = computed<boolean[]>(() => {
         const enumValues: unknown[] = Array.isArray(props.enum) ? props.enum : []
