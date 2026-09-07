@@ -25,7 +25,7 @@
 </script>
 
 <template>
-    <div v-if="isVisible" class="containerClass" :class="{ 'opacity-60': isDisabled }">
+    <div v-if="isVisible" :class="[containerClass, { 'opacity-60': isDisabled }]">
         <div class="tooltip tooltip-top z-50" :data-tip="props.description">
             <span class="text-xs tracking-wide cursor-default">
                 <slot :disabled="isDisabled" :readable="isReadable" />
