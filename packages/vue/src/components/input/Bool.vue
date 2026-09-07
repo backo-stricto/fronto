@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { computed, ref } from 'vue'
-    import type { FrontoProps } from '@backo-stricto/fronto-core'
+    import { FrontoProps, isValueInEnum } from '@backo-stricto/fronto-core'
     import InputField from '../InputField.vue'
     import { useFrontoValue } from '../common'
     import { normalizeBool } from '../BoolHelpers'
@@ -14,18 +14,8 @@
 
     const resolvedValue = useFrontoValue(props, normalizeBool)
 
-    const allowedValues = computed<boolean[]>(() => {
-        const enumValues: unknown[] = Array.isArray(props.enum) ? props.enum : []
-        return enumValues
-            .map((item) => normalizeBool(item))
-            .filter((item): item is boolean => item !== undefined)
-    })
-
     const enumInvalid = computed(() => {
-        if (props.enum === undefined) {
-            return false
-        }
-        return !allowedValues.value.includes(resolvedValue.value)
+        return !isValueInEnum<'Bool'>(resolvedValue.value, props.enum)
     })
 
     const uiError = ref('')
@@ -46,15 +36,10 @@
     async function handleChange(event: Event): Promise<void> {
         const nextValue = (event.target as HTMLInputElement).checked
 
-        if (allowedValues.value.length === 0 && props.enum !== undefined) {
-            uiError.value = 'Enum values are not valid.'
-            return
-        }
-        if (allowedValues.value.length > 0 && !allowedValues.value.includes(nextValue)) {
+        if (!isValueInEnum<'Bool'>(nextValue, props.enum)) {
             uiError.value = 'Value must be one of enum values.'
-            return
+            return undefined
         }
-
         uiError.value = ''
         await props.onChange?.(nextValue)
         emit('update:value', nextValue)

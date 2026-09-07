@@ -79,30 +79,6 @@ export interface FrontoComponentSource {
     sourcePath: string
 }
 
-export function normalizeDatetimeToUtcIso(
-    value: string | Date | null | undefined,
-): string | null | undefined {
-    if (value === undefined || value === null) {
-        return value
-    }
-
-    const parsedDate = value instanceof Date ? value : new Date(value)
-    if (Number.isNaN(parsedDate.getTime())) {
-        throw new Error(`Invalid datetime value: ${String(value)}`)
-    }
-
-    return parsedDate.toISOString()
-}
-
-export function isBase64(value: string): boolean {
-    const normalized = value.trim()
-    if (normalized.length === 0 || normalized.length % 4 !== 0) {
-        return false
-    }
-
-    return /^[A-Za-z0-9+/]*={0,2}$/.test(normalized)
-}
-
 export const FRONTO_COMPONENTS_ROOT_PATH: string = 'fronto/components';
 
 export const FRONTO_COMPONENTS_BASE_PATH: string = `${FRONTO_COMPONENTS_ROOT_PATH}/base`;
@@ -209,5 +185,50 @@ export function resolveFrontoProps<T extends keyof FrontoTypeMap>(
         ...typeDefaults,
         ...provided,
     } as FrontoComponentProps<FrontoTypeMap[T]>
+}
+
+
+export function normalizeDatetimeToUtcIso(
+    value: string | Date | null | undefined,
+): string | null | undefined {
+    if (value === undefined || value === null) {
+        return value
+    }
+
+    const parsedDate = value instanceof Date ? value : new Date(value)
+    if (Number.isNaN(parsedDate.getTime())) {
+        throw new Error(`Invalid datetime value: ${String(value)}`)
+    }
+
+    return parsedDate.toISOString()
+}
+
+export function isBase64(value: string): boolean {
+    const normalized = value.trim()
+    if (normalized.length === 0 || normalized.length % 4 !== 0) {
+        return false
+    }
+    return /^[A-Za-z0-9+/]*={0,2}$/.test(normalized)
+}
+
+export function isValueInEnum<T extends keyof FrontoTypeMap>(
+    value: FrontoTypeMap[T],
+    enumValues?: FrontoTypeMap[T][],
+): boolean {
+    if (!enumValues || enumValues.length === 0) {
+        return false
+    }
+    if (enumValues === undefined) {
+        return true
+    }
+    return enumValues.some((enumValue) => {
+        if (value instanceof Date && enumValue instanceof Date) {
+            return value.getTime() === enumValue.getTime()
+        }
+        if (value instanceof Uint8Array && enumValue instanceof Uint8Array) {
+            return value.length === enumValue.length && value.every((byte, index) => byte === enumValue[index])
+        }
+        return value === enumValue
+    })
 }
 

@@ -1,14 +1,16 @@
 <script setup lang="ts">
     import { computed } from 'vue'
-    import { FrontoProps } from '@backo-stricto/fronto-core'
+    import { FrontoProps, isValueInEnum } from '@backo-stricto/fronto-core'
     import DisplayField from '../DisplayField.vue'
     import { useFrontoValue } from '../common.js'
-    import { normalizeBool } from '../BoolHelpers.js'
+    import { normalizeBool, formatBool } from '../BoolHelpers.js'
 
 
     const props = defineProps<FrontoProps<'Bool'>>()
 
     const resolvedValue = useFrontoValue(props, normalizeBool)
+
+    const valueLabel = computed(() => formatBool(resolvedValue.value))
 
     const allowedValues = computed<boolean[]>(() => {
         const enumValues: unknown[] = Array.isArray(props.enum) ? props.enum : []
@@ -18,10 +20,7 @@
     })
 
     const enumInvalid = computed(() => {
-        if (allowedValues.value.length === 0) {
-            return false
-        }
-        return !allowedValues.value.includes(resolvedValue.value)
+        return !isValueInEnum<'Bool'>(resolvedValue.value, allowedValues.value)
     })
 
     const effectiveError = computed(() => {
@@ -34,18 +33,12 @@
         return ''
     })
 
-    const valueLabel = computed(() => {
-        if (resolvedValue.value) {
-            return 'true'
-        }
-        return 'false'
-    })
 </script>
 
 <template>
     <DisplayField variant="cell" :exist="props.exist" :readable="props.readable" :description="props.description"
         :error-message="effectiveError">
-        <template #default="{ disabled }">
+        <template #default="{ readable }">
             <span class="text-xs tracking-wide cursor-default">
                 <template v-if="readable">{{ valueLabel }}</template>
                 <template v-else>
