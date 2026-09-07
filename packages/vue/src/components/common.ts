@@ -2,11 +2,11 @@ import { computed } from 'vue'
 import { FrontoProps, FrontoTypeMap } from '@backo-stricto/fronto-core'
 
 
-export function useFrontoValue<T>(
-    props: Pick<FrontoProps<T extends keyof FrontoTypeMap ? T : never>, 'value' | 'defaultValue'>,
-    normalizeFn: (value: unknown) => T | undefined
+export function useFrontoValue<K extends keyof FrontoTypeMap>(
+    props: Pick<FrontoProps<K>, 'value' | 'defaultValue'>,
+    normalizeFn: (value: unknown) => FrontoTypeMap[K] | undefined
 ) {
-    return computed<T>(() => {
+    return computed<FrontoTypeMap[K]>(() => {
         const value = normalizeFn(props.value)
         if (value !== undefined) {
             return value

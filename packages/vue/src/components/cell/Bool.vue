@@ -10,7 +10,7 @@
 
     const resolvedValue = useFrontoValue(props, normalizeBool)
 
-    const valueLabel = computed(() => formatBool(resolvedValue.value))
+    const valueLabel = computed(() => formatBool(resolvedValue.value as boolean))
 
     const allowedValues = computed<boolean[]>(() => {
         const enumValues: unknown[] = Array.isArray(props.enum) ? props.enum : []
@@ -20,7 +20,7 @@
     })
 
     const enumInvalid = computed(() => {
-        return !isValueInEnum<'Bool'>(resolvedValue.value, allowedValues.value)
+        return !isValueInEnum<'Bool'>(resolvedValue.value as boolean, allowedValues.value)
     })
 
     const effectiveError = computed(() => {
