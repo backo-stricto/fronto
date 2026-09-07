@@ -4,3 +4,11 @@ export function normalizeBool(value: unknown): boolean | undefined {
     }
     return undefined;
 }
+
+
+export function formatBool(value: boolean): string {
+    if (value === true) {
+        return 'true';
+    }
+    return 'false';
+}
