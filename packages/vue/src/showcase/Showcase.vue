@@ -32,7 +32,14 @@
             enum: undefined,
         },
         Float: {
+            exist: true,
+            readable: true,
+            writable: true,
+            description: 'A floating-point value',
+            required: false,
             defaultValue: 0.0,
+            value: 123.45,
+            enum: undefined,
         },
         String: {
             defaultValue: '',
