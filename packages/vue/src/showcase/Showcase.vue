@@ -2,14 +2,11 @@
     import {
         FRONTO_COMPONENTS_REGISTRY,
         FrontoComponentProps,
-        StrictoTypes,
         FrontoTypeMap,
         resolveFrontoComponent,
     } from "./registry";
     import {
         FrontoStrictoType,
-        FRONTO_DEFAULT_PROPS,
-        FRONTO_TYPE_DEFAULTS,
         resolveFrontoProps
     } from "@backo-stricto/fronto-core";
 
