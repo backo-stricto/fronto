@@ -213,13 +213,14 @@ export function isBase64(value: string): boolean {
 
 export function isValueInEnum<T extends keyof FrontoTypeMap>(
     value: FrontoTypeMap[T],
-    enumValues?: FrontoTypeMap[T][],
+    enumValues: FrontoTypeMap[T][] | undefined,
 ): boolean {
-    if (!enumValues || enumValues.length === 0) {
-        return false
-    }
+    console.log('[CORE] isValueInEnum called with value:', value, 'and enumValues:', enumValues)
     if (enumValues === undefined) {
         return true
+    }
+    if (enumValues?.length === 0) {
+        return false
     }
     return enumValues.some((enumValue) => {
         if (value instanceof Date && enumValue instanceof Date) {
