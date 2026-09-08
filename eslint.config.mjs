@@ -1,6 +1,5 @@
 import js from '@eslint/js'
 import tseslint from 'typescript-eslint'
-import eslintConfigPrettier from "eslint-config-prettier/flat";
 import eslintPluginPrettierRecommanded from "eslint-plugin-prettier/recommended";
 import pluginVue from 'eslint-plugin-vue'
 import vueParser from 'vue-eslint-parser'
@@ -47,9 +46,6 @@ export default [
             'vue/multi-word-component-names': 'off',
             'vue/no-v-html': 'off',
         },
-    },
-    {
-        extends: [eslintConfigPrettier],
     },
     eslintPluginPrettierRecommanded
 ]
