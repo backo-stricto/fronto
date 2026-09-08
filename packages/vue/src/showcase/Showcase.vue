@@ -22,7 +22,14 @@
             enum: [true, false],
         },
         Int: {
+            exist: true,
+            readable: true,
+            writable: true,
+            description: 'An integer value',
+            required: false,
             defaultValue: 0,
+            value: 123,
+            enum: undefined,
         },
         Float: {
             defaultValue: 0.0,

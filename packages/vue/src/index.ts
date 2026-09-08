@@ -16,4 +16,19 @@ export const FRONTO_VUE_COMPONENT_SOURCES: ReadonlyArray<FrontoComponentSource> 
         variant: 'cell',
         sourcePath: 'src/components/cell/Bool.vue',
     },
+    {
+        strictoType: 'Int',
+        variant: 'input',
+        sourcePath: 'src/components/input/Int.vue',
+    },
+    {
+        strictoType: 'Int',
+        variant: 'display',
+        sourcePath: 'src/components/display/Int.vue',
+    },
+    {
+        strictoType: 'Int',
+        variant: 'cell',
+        sourcePath: 'src/components/cell/Int.vue',
+    },
 ]
