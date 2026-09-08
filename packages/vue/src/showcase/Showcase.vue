@@ -42,7 +42,14 @@
             enum: undefined,
         },
         String: {
+            exist: true,
+            readable: true,
+            writable: true,
+            description: 'A string value',
+            required: false,
             defaultValue: '',
+            value: 'Hello, Fronto !',
+            enum: undefined,
         },
         Datetime: {
             defaultValue: new Date(),
