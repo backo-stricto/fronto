@@ -5,6 +5,8 @@ That model includes:
 - type identifier, such as bool, int, float, string, datetime, bytes, or dict;
 - field label, description, required and read-only state;
 - JSON-compatible initial/current values;
+- `Bytes` values use canonical padded base64 strings at the Fronto/API boundary;
+- browser binary operations may temporarily decode a `Bytes` value to `Uint8Array`, but must encode it back before emitting or serializing it;
 - common constraints;
 - type-specific settings, such as numeric bounds, regexes, or nested Dict fields;
 - variant intent: display, input, or cell;
