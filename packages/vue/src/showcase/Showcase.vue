@@ -52,7 +52,14 @@
             enum: undefined,
         },
         Datetime: {
-            defaultValue: new Date(),
+            exist: true,
+            readable: true,
+            writable: true,
+            description: 'A datetime value',
+            required: false,
+            defaultValue: new Date(0).toISOString(),
+            value: new Date().toISOString(),
+            enum: undefined,
         },
         Bytes: {
             defaultValue: new Uint8Array(),

@@ -61,4 +61,19 @@ export const FRONTO_VUE_COMPONENT_SOURCES: ReadonlyArray<FrontoComponentSource> 
         variant: 'cell',
         sourcePath: 'src/components/cell/String.vue',
     },
+    {
+        strictoType: 'Datetime',
+        variant: 'input',
+        sourcePath: 'src/components/input/Datetime.vue',
+    },
+    {
+        strictoType: 'Datetime',
+        variant: 'display',
+        sourcePath: 'src/components/display/Datetime.vue',
+    },
+    {
+        strictoType: 'Datetime',
+        variant: 'cell',
+        sourcePath: 'src/components/cell/Datetime.vue',
+    },
 ]

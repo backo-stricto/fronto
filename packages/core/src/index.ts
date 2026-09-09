@@ -104,7 +104,7 @@ export type FrontoTypeMap = {
     Int: number
     Float: number
     String: string
-    Datetime: Date
+    Datetime: string
     Bytes: Uint8Array
     Dict: Record<string, unknown>
 }
@@ -159,8 +159,8 @@ export const FRONTO_TYPE_DEFAULTS = {
         enum: undefined,
     },
     Datetime: {
-        value: new Date(0),
-        defaultValue: new Date(0),
+        value: new Date(0).toISOString(),
+        defaultValue: new Date(0).toISOString(),
         enum: undefined,
     },
     Bytes: {
