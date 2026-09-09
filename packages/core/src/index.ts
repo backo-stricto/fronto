@@ -105,7 +105,7 @@ export type FrontoTypeMap = {
     Float: number
     String: string
     Datetime: string
-    Bytes: Uint8Array
+    Bytes: string
     Dict: Record<string, unknown>
 }
 
@@ -164,8 +164,8 @@ export const FRONTO_TYPE_DEFAULTS = {
         enum: undefined,
     },
     Bytes: {
-        value: new Uint8Array(),
-        defaultValue: new Uint8Array(),
+        value: '',
+        defaultValue: '',
         enum: undefined,
     },
     Dict: {
@@ -204,11 +204,13 @@ export function normalizeDatetimeToUtcIso(
 }
 
 export function isBase64(value: string): boolean {
-    const normalized = value.trim()
-    if (normalized.length === 0 || normalized.length % 4 !== 0) {
+    if (value.length === 0) {
+        return true
+    }
+    if (value.length % 4 !== 0) {
         return false
     }
-    return /^[A-Za-z0-9+/]*={0,2}$/.test(normalized)
+    return /^[A-Za-z0-9+/]*={0,2}$/.test(value)
 }
 
 export function isValueInEnum<T extends keyof FrontoTypeMap>(
@@ -225,9 +227,6 @@ export function isValueInEnum<T extends keyof FrontoTypeMap>(
     return enumValues.some((enumValue) => {
         if (value instanceof Date && enumValue instanceof Date) {
             return value.getTime() === enumValue.getTime()
-        }
-        if (value instanceof Uint8Array && enumValue instanceof Uint8Array) {
-            return value.length === enumValue.length && value.every((byte, index) => byte === enumValue[index])
         }
         return value === enumValue
     })

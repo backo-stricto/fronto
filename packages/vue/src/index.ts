@@ -76,4 +76,19 @@ export const FRONTO_VUE_COMPONENT_SOURCES: ReadonlyArray<FrontoComponentSource> 
         variant: 'cell',
         sourcePath: 'src/components/cell/Datetime.vue',
     },
+    {
+        strictoType: 'Bytes',
+        variant: 'input',
+        sourcePath: 'src/components/input/Bytes.vue',
+    },
+    {
+        strictoType: 'Bytes',
+        variant: 'display',
+        sourcePath: 'src/components/display/Bytes.vue',
+    },
+    {
+        strictoType: 'Bytes',
+        variant: 'cell',
+        sourcePath: 'src/components/cell/Bytes.vue',
+    },
 ]

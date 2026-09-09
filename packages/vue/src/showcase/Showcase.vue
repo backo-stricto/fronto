@@ -59,7 +59,14 @@ const showCaseOverrides: Record<FrontoStrictoType, Partial<FrontoComponentProps<
         enum: undefined,
     },
     Bytes: {
-        defaultValue: new Uint8Array(),
+        exist: true,
+        readable: true,
+        writable: true,
+        description: 'Binary data encoded as base64',
+        required: false,
+        defaultValue: '',
+        value: 'SGVsbG8sIEZyb250byE=',
+        enum: undefined,
     },
     Dict: {
         defaultValue: {},
