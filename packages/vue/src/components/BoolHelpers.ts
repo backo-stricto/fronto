@@ -1,14 +1,13 @@
 export function normalizeBool(value: unknown): boolean | undefined {
     if (typeof value === 'boolean') {
-        return value;
+        return value
     }
-    return undefined;
+    return undefined
 }
-
 
 export function formatBool(value: boolean): string {
     if (value === true) {
-        return 'true';
+        return 'true'
     }
-    return 'false';
+    return 'false'
 }

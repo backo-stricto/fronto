@@ -5,7 +5,6 @@ export function normalizeFloat(value: unknown): number | undefined {
     return undefined
 }
 
-
 export function parseFloatInput(value: string): number | undefined {
     const normalizedValue = value.trim()
     if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(normalizedValue)) {
@@ -13,7 +12,6 @@ export function parseFloatInput(value: string): number | undefined {
     }
     return normalizeFloat(Number(normalizedValue))
 }
-
 
 export function formatFloat(value: number): string {
     return String(value)

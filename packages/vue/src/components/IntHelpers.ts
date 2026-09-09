@@ -5,7 +5,6 @@ export function normalizeInt(value: unknown): number | undefined {
     return undefined
 }
 
-
 export function parseIntInput(value: string): number | undefined {
     const normalizedValue = value.trim()
     if (!/^[+-]?\d+$/.test(normalizedValue)) {
@@ -13,7 +12,6 @@ export function parseIntInput(value: string): number | undefined {
     }
     return normalizeInt(Number(normalizedValue))
 }
-
 
 export function formatInt(value: number): string {
     return String(value)
