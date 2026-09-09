@@ -25,7 +25,9 @@
         "build": "tsdown src/index.ts --dts --out-dir dist --format esm",
         "test": "echo '@backo-stricto/fronto-vue tests not implemented' && exit 0",
         "lint": "eslint . --fix-dry-run --cache --cache-location ./node_modules/.cache/eslint/",
-        "clean": "rm -rf dist"
+        "clean": "rm -rf dist",
+        "format:fix": "prettier --write ./src/**/*.{ts,vue,css,scss,md,json}",
+        "format:check": "prettier --check ./src/**/*.{ts,vue,css,scss,md,json}"
     },
     "dependencies": {
         "@backo-stricto/fronto-core": "workspace:*"
