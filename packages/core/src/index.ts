@@ -1,7 +1,19 @@
 export const FrontoVariants = ['display', 'input', 'cell'] as const
 export type FrontoComponentVariant = (typeof FrontoVariants)[number]
 
-export const StrictoTypes = ['Bool', 'Int', 'Float', 'String', 'Datetime', 'Bytes', 'Dict'] as const
+export const StrictoTypes = [
+    'Bool',
+    'Int',
+    'Float',
+    'String',
+    'Datetime',
+    'Bytes',
+    'List',
+    'Dict',
+    'Item',
+    'Ref',
+    'RefsList'] as const
+
 export type FrontoStrictoType = (typeof StrictoTypes)[number]
 
 export interface FrontoValidationMessage {
@@ -54,10 +66,35 @@ export interface FrontoBytesField extends FrontoFieldBase {
     defaultValue?: string
 }
 
+export interface FrontoListField extends FrontoFieldBase {
+    strictoType: 'List'
+    itemType: FrontoFieldDefinition
+    defaultValue?: unknown[]
+}
+
 export interface FrontoDictField extends FrontoFieldBase {
     strictoType: 'Dict'
     fields: Record<string, FrontoFieldDefinition>
 }
+
+export interface FrontoItemField extends FrontoFieldBase {
+    strictoType: 'Item'
+    itemType: FrontoFieldDefinition
+    defaultValue?: unknown
+}
+
+export interface FrontoRefField extends FrontoFieldBase {
+    strictoType: 'Ref'
+    refType: string
+    defaultValue?: unknown
+}
+
+export interface FrontoRefsListField extends FrontoFieldBase {
+    strictoType: 'RefsList'
+    itemType: FrontoRefField
+    defaultValue?: unknown[]
+}
+
 
 export type FrontoFieldDefinition =
     | FrontoBoolField
@@ -66,7 +103,11 @@ export type FrontoFieldDefinition =
     | FrontoStringField
     | FrontoDatetimeField
     | FrontoBytesField
+    | FrontoListField
     | FrontoDictField
+    | FrontoItemField
+    | FrontoRefField
+    | FrontoRefsListField
 
 export interface FrontoFieldState<TValue> {
     value: TValue
@@ -106,7 +147,11 @@ export type FrontoTypeMap = {
     String: string
     Datetime: string
     Bytes: string
+    List: unknown[]
     Dict: Record<string, unknown>
+    Item: unknown
+    Ref: unknown
+    RefsList: unknown[]
 }
 
 export interface FrontoComponentProps<TValue = unknown> {
@@ -168,9 +213,29 @@ export const FRONTO_TYPE_DEFAULTS = {
         defaultValue: '',
         enum: undefined,
     },
+    List: {
+        value: [],
+        defaultValue: [],
+        enum: undefined,
+    },
     Dict: {
         value: {},
         defaultValue: {},
+        enum: undefined,
+    },
+    Item: {
+        value: {},
+        defaultValue: {},
+        enum: undefined,
+    },
+    Ref: {
+        value: null,
+        defaultValue: null,
+        enum: undefined,
+    },
+    RefsList: {
+        value: [],
+        defaultValue: [],
         enum: undefined,
     },
 } satisfies Record<keyof FrontoTypeMap, Partial<FrontoComponentProps<unknown>>>
