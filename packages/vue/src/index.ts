@@ -91,4 +91,14 @@ export const FRONTO_VUE_COMPONENT_SOURCES: ReadonlyArray<FrontoComponentSource> 
         variant: 'cell',
         sourcePath: 'src/components/cell/Bytes.vue',
     },
+    {
+        strictoType: 'List',
+        variant: 'input',
+        sourcePath: 'src/components/input/List.vue',
+    },
+    {
+        strictoType: 'List',
+        variant: 'display',
+        sourcePath: 'src/components/display/List.vue',
+    },
 ]

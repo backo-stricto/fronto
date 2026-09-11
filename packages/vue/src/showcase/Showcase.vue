@@ -71,6 +71,16 @@ const showCaseOverrides: Record<FrontoStrictoType, Partial<FrontoComponentProps<
     Dict: {
         defaultValue: {},
     },
+    List: {
+        exist: true,
+        readable: true,
+        writable: true,
+        description: 'A list of strings',
+        required: false,
+        defaultValue: [],
+        value: ['Fronto', 'Stricto', 'Backo'],
+        enum: undefined,
+    },
 }
 
 const VARIANTS = Array.from(
