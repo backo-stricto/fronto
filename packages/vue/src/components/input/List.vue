@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, ComputedRef } from 'vue'
 import type { FrontoProps } from '@backo-stricto/fronto-core'
 import InputField from '../InputField.vue'
-import { useFrontoValue } from '../common'
-import { inferListItemType, normalizeList } from '../ListHelpers'
+import { useFrontoValue } from '../common.js'
+import { inferListItemType, normalizeList } from '../ListHelpers.js'
 import Bool from './Bool.vue'
 import Float from './Float.vue'
 import Int from './Int.vue'
@@ -17,7 +17,7 @@ const emit = defineEmits<{
     'update:value': [value: unknown[]]
 }>()
 
-const resolvedValue = useFrontoValue(props, normalizeList)
+const resolvedValue: ComputedRef<unknown[]> = useFrontoValue<'List'>(props, normalizeList)
 const inputValue = ref([...resolvedValue.value])
 
 watch(resolvedValue, (value) => {
