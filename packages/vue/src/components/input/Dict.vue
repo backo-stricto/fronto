@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, ComputedRef } from 'vue'
+import { ref, watch, type ComputedRef } from 'vue'
 import type { FrontoProps } from '@backo-stricto/fronto-core'
 import InputField from '../InputField.vue'
 import { useFrontoValue } from '../common.js'
