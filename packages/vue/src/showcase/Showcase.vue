@@ -69,7 +69,18 @@ const showCaseOverrides: Record<FrontoStrictoType, Partial<FrontoComponentProps<
         enum: undefined,
     },
     Dict: {
+        exist: true,
+        readable: true,
+        writable: true,
+        description: 'A dictionary with values of different types',
+        required: false,
         defaultValue: {},
+        value: {
+            greeting: 'Hello, Fronto!',
+            answer: 42,
+            enabled: true,
+        },
+        enum: undefined,
     },
     List: {
         exist: true,
