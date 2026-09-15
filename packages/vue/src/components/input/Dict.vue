@@ -2,7 +2,7 @@
 import { ref, watch, type ComputedRef } from 'vue'
 import type { FrontoProps } from '@backo-stricto/fronto-core'
 import InputField from '../InputField.vue'
-import { useFrontoValue } from '../common.js'
+import { resolveNestedFrontoProps, useFrontoValue } from '../common.js'
 import { inferDictValueType, normalizeDict } from '../DictHelpers.js'
 import Bool from './Bool.vue'
 import Float from './Float.vue'
@@ -29,39 +29,22 @@ watch(resolvedValue, (value) => {
     inputValue.value = { ...value }
 })
 
-const leafComponents = {
-    Bool,
-    Float,
-    Int,
-    String,
-    Datetime,
-    Bytes,
-    List,
-} as const
+const scalarComponents = { Bool, Float, Int, String, Datetime, Bytes } as const
+const compoundComponents = { List, Dict: 'Dict' } as const
 
-function componentFor(
-    value: unknown,
-): (typeof leafComponents)[keyof typeof leafComponents] | 'Dict' | null {
+function componentFor(value: unknown) {
     const type = inferDictValueType(value)
-    if (type === 'Dict') {
-        return 'Dict'
+    if (type === 'List' || type === 'Dict') {
+        return compoundComponents[type]
     }
-    if (type in leafComponents) {
-        return leafComponents[type as keyof typeof leafComponents]
-    }
-    return null
+    return type in scalarComponents ? scalarComponents[type as keyof typeof scalarComponents] : null
 }
 
 function valueProps(value: unknown) {
-    return {
-        value,
-        defaultValue: value,
-        exist: true,
-        readable: true,
+    const type = inferDictValueType(value)
+    return resolveNestedFrontoProps(type, value as never, {
         writable: true,
-        description: '',
-        errorMessage: '',
-    }
+    })
 }
 
 async function updateEntry(key: string | number, value: unknown): Promise<void> {
