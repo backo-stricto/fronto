@@ -1,5 +1,10 @@
 import { computed } from 'vue'
-import { FrontoProps, FrontoTypeMap } from '@backo-stricto/fronto-core'
+import {
+    FrontoProps,
+    FrontoStrictoType,
+    FrontoTypeMap,
+    resolveFrontoProps,
+} from '@backo-stricto/fronto-core'
 
 export function useFrontoValue<K extends keyof FrontoTypeMap>(
     props: Pick<FrontoProps<K>, 'value' | 'defaultValue'>,
@@ -16,4 +21,19 @@ export function useFrontoValue<K extends keyof FrontoTypeMap>(
         }
         throw new Error('Invalid Fronto default value')
     })
+}
+
+export function resolveNestedFrontoProps<T extends keyof FrontoTypeMap>(
+    type: T,
+    value: FrontoTypeMap[T],
+    overrides: Partial<FrontoProps<T>> = {},
+): FrontoProps<T> {
+    return resolveFrontoProps(type, {
+        ...overrides,
+        value,
+    })
+}
+
+export function isCompoundFrontoType(type: FrontoStrictoType): type is 'List' | 'Dict' {
+    return type === 'List' || type === 'Dict'
 }

@@ -111,4 +111,14 @@ export const FRONTO_VUE_COMPONENT_SOURCES: ReadonlyArray<FrontoComponentSource> 
         variant: 'display',
         sourcePath: 'src/components/display/Dict.vue',
     },
+    {
+        strictoType: 'Item',
+        variant: 'input',
+        sourcePath: 'src/components/input/Item.vue',
+    },
+    {
+        strictoType: 'Item',
+        variant: 'display',
+        sourcePath: 'src/components/display/Item.vue',
+    },
 ]

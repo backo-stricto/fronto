@@ -12,7 +12,8 @@ export const StrictoTypes = [
     'Dict',
     'Item',
     'Ref',
-    'RefsList'] as const
+    'RefsList',
+] as const
 
 export type FrontoStrictoType = (typeof StrictoTypes)[number]
 
@@ -79,8 +80,8 @@ export interface FrontoDictField extends FrontoFieldBase {
 
 export interface FrontoItemField extends FrontoFieldBase {
     strictoType: 'Item'
-    itemType: FrontoFieldDefinition
-    defaultValue?: unknown
+    fields: Record<string, FrontoItemPropertyDefinition>
+    defaultValue?: Record<string, unknown>
 }
 
 export interface FrontoRefField extends FrontoFieldBase {
@@ -95,7 +96,6 @@ export interface FrontoRefsListField extends FrontoFieldBase {
     defaultValue?: unknown[]
 }
 
-
 export type FrontoFieldDefinition =
     | FrontoBoolField
     | FrontoIntField
@@ -109,6 +109,9 @@ export type FrontoFieldDefinition =
     | FrontoRefField
     | FrontoRefsListField
 
+/** Item properties may not contain another Item definition. */
+export type FrontoItemPropertyDefinition = Exclude<FrontoFieldDefinition, FrontoItemField>
+
 export interface FrontoFieldState<TValue> {
     value: TValue
     validationMessages: FrontoValidationMessage[]
@@ -120,15 +123,15 @@ export interface FrontoComponentSource {
     sourcePath: string
 }
 
-export const FRONTO_COMPONENTS_ROOT_PATH: string = 'fronto/components';
+export const FRONTO_COMPONENTS_ROOT_PATH: string = 'fronto/components'
 
-export const FRONTO_COMPONENTS_BASE_PATH: string = `${FRONTO_COMPONENTS_ROOT_PATH}/base`;
+export const FRONTO_COMPONENTS_BASE_PATH: string = `${FRONTO_COMPONENTS_ROOT_PATH}/base`
 
-export const FRONTO_COMPONENTS_ITEMS_PATH: string = `${FRONTO_COMPONENTS_ROOT_PATH}/items`;
+export const FRONTO_COMPONENTS_ITEMS_PATH: string = `${FRONTO_COMPONENTS_ROOT_PATH}/items`
 
-export const FRONTO_COMPONENTS_OVERRIDES_BASE_PATH: string = `${FRONTO_COMPONENTS_ROOT_PATH}/overrides/base`;
+export const FRONTO_COMPONENTS_OVERRIDES_BASE_PATH: string = `${FRONTO_COMPONENTS_ROOT_PATH}/overrides/base`
 
-export const FRONTO_COMPONENTS_OVERRIDES_ITEMS_PATH: string = `${FRONTO_COMPONENTS_ROOT_PATH}/overrides/items`;
+export const FRONTO_COMPONENTS_OVERRIDES_ITEMS_PATH: string = `${FRONTO_COMPONENTS_ROOT_PATH}/overrides/items`
 
 export const FRONTO_GENERATED_CODE_NOTICE: string = `\
 // Fronto Components Registry
@@ -149,7 +152,7 @@ export type FrontoTypeMap = {
     Bytes: string
     List: unknown[]
     Dict: Record<string, unknown>
-    Item: unknown
+    Item: Record<string, unknown>
     Ref: unknown
     RefsList: unknown[]
 }
@@ -252,7 +255,6 @@ export function resolveFrontoProps<T extends keyof FrontoTypeMap>(
     } as FrontoComponentProps<FrontoTypeMap[T]>
 }
 
-
 export function normalizeDatetimeToUtcIso(
     value: string | Date | null | undefined,
 ): string | null | undefined {
@@ -296,4 +298,3 @@ export function isValueInEnum<T extends keyof FrontoTypeMap>(
         return value === enumValue
     })
 }
-

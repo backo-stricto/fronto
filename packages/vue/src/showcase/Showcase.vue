@@ -92,6 +92,21 @@ const showCaseOverrides: Record<FrontoStrictoType, Partial<FrontoComponentProps<
         value: ['Fronto', 'Stricto', 'Backo'],
         enum: undefined,
     },
+    Item: {
+        exist: true,
+        readable: true,
+        writable: true,
+        description: 'An entity with scalar and compound properties',
+        required: false,
+        defaultValue: {},
+        value: {
+            name: 'Ada Lovelace',
+            age: 36,
+            roles: ['admin', 'author'],
+            preferences: { theme: 'dark', notifications: true },
+        },
+        enum: undefined,
+    },
 }
 
 const VARIANTS = Array.from(
