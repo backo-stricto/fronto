@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import type { FrontoProps } from '@backo-stricto/fronto-core'
 import DisplayField from '../DisplayField.vue'
-import { useFrontoValue } from '../common'
+import { resolveNestedFrontoProps, useFrontoValue } from '../common'
 import { inferListItemType, normalizeList } from '../ListHelpers'
 import Bool from './Bool.vue'
 import Float from './Float.vue'
@@ -38,15 +38,10 @@ function componentFor(
 }
 
 function itemProps(item: unknown) {
-    return {
-        value: item,
-        defaultValue: item,
-        exist: true,
-        readable: true,
+    const type = inferListItemType(item)
+    return resolveNestedFrontoProps(type, item as never, {
         writable: false,
-        description: '',
-        errorMessage: '',
-    }
+    })
 }
 
 const effectiveError = computed(() => props.errorMessage || '')

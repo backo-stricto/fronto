@@ -2,7 +2,7 @@
 import { ref, watch, type ComputedRef } from 'vue'
 import type { FrontoProps } from '@backo-stricto/fronto-core'
 import InputField from '../InputField.vue'
-import { useFrontoValue } from '../common.js'
+import { resolveNestedFrontoProps, useFrontoValue } from '../common.js'
 import { inferListItemType, normalizeList } from '../ListHelpers.js'
 import Bool from './Bool.vue'
 import Float from './Float.vue'
@@ -47,15 +47,10 @@ function componentFor(
 }
 
 function itemProps(item: unknown) {
-    return {
-        value: item,
-        defaultValue: item,
-        exist: true,
-        readable: true,
+    const type = inferListItemType(item)
+    return resolveNestedFrontoProps(type, item as never, {
         writable: true,
-        description: '',
-        errorMessage: '',
-    }
+    })
 }
 
 async function updateItem(index: number, value: unknown): Promise<void> {
