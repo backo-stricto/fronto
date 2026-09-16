@@ -40,18 +40,26 @@ function componentFor(value: unknown) {
     return type in scalarComponents ? scalarComponents[type as keyof typeof scalarComponents] : null
 }
 
-function valueProps(value: unknown) {
+function valueProps(value: unknown): FrontoComponentProps<unknown> {
     const type = inferItemValueType(value)
-    return resolveNestedFrontoProps(type, value as never, {
+    return resolveNestedFrontoProps(type, value, {
         writable: true,
-    })
+    }) as FrontoComponentProps<unknown>
 }
 
 async function updateEntry(key: string | number, value: unknown): Promise<void> {
     const nextValue = { ...inputValue.value, [key]: value }
     inputValue.value = nextValue
+}
+
+async function submitItem(): Promise<void> {
+    const nextValue = { ...inputValue.value }
     await props.onChange?.(nextValue)
     emit('update:value', nextValue)
+}
+
+function cancelChanges(): void {
+    inputValue.value = { ...resolvedValue.value }
 }
 </script>
 
@@ -65,7 +73,7 @@ async function updateEntry(key: string | number, value: unknown): Promise<void> 
         <template #default="{ disabled }">
             <form
                 class="space-y-2"
-                @submit.prevent>
+                @submit.prevent="submitItem">
                 <div
                     v-for="(entryValue, key) in inputValue"
                     :key="key"
@@ -78,6 +86,21 @@ async function updateEntry(key: string | number, value: unknown): Promise<void> 
                         :disabled="disabled"
                         @update:value="updateEntry(key, $event)" />
                     <span v-else>{{ JSON.stringify(entryValue) }}</span>
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button
+                        type="button"
+                        class="btn btn-ghost"
+                        :disabled="disabled"
+                        @click="cancelChanges">
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        :disabled="disabled">
+                        Send
+                    </button>
                 </div>
             </form>
         </template>
