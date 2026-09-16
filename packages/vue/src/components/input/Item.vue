@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, watch, type ComputedRef } from 'vue'
-import type { FrontoProps } from '@backo-stricto/fronto-core'
+import { ref, watch, type Component, type ComputedRef } from 'vue'
+import type { FrontoComponentProps, FrontoProps } from '@backo-stricto/fronto-core'
 import InputField from '../InputField.vue'
 import { isCompoundFrontoType, resolveNestedFrontoProps, useFrontoValue } from '../common.js'
 import { inferItemValueType, normalizeItem } from '../ItemHelpers.js'
@@ -32,7 +32,7 @@ watch(resolvedValue, (value) => {
 const scalarComponents = { Bool, Float, Int, String, Datetime, Bytes } as const
 const compoundComponents = { List, Dict } as const
 
-function componentFor(value: unknown) {
+function componentFor(value: unknown): Component | null {
     const type = inferItemValueType(value)
     if (isCompoundFrontoType(type)) {
         return compoundComponents[type]

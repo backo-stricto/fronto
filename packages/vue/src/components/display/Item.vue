@@ -28,7 +28,7 @@ function componentFor(value: unknown) {
 
 function valueProps(value: unknown) {
     const type = inferItemValueType(value)
-    return resolveNestedFrontoProps(type, value as never, {
+    return resolveNestedFrontoProps(type, value, {
         writable: false,
     })
 }

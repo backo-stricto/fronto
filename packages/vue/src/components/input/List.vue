@@ -48,7 +48,7 @@ function componentFor(
 
 function itemProps(item: unknown) {
     const type = inferListItemType(item)
-    return resolveNestedFrontoProps(type, item as never, {
+    return resolveNestedFrontoProps(type, item, {
         writable: true,
     })
 }

@@ -1,5 +1,6 @@
 import { computed } from 'vue'
 import {
+    FrontoComponentProps,
     FrontoProps,
     FrontoStrictoType,
     FrontoTypeMap,
@@ -26,8 +27,18 @@ export function useFrontoValue<K extends keyof FrontoTypeMap>(
 export function resolveNestedFrontoProps<T extends keyof FrontoTypeMap>(
     type: T,
     value: FrontoTypeMap[T],
-    overrides: Partial<FrontoProps<T>> = {},
-): FrontoProps<T> {
+    overrides?: Partial<FrontoProps<T>>,
+): FrontoProps<T>
+export function resolveNestedFrontoProps(
+    type: keyof FrontoTypeMap,
+    value: unknown,
+    overrides?: Partial<FrontoComponentProps<unknown>>,
+): FrontoComponentProps<unknown>
+export function resolveNestedFrontoProps(
+    type: keyof FrontoTypeMap,
+    value: unknown,
+    overrides: Partial<FrontoComponentProps<unknown>> = {},
+): FrontoComponentProps<unknown> {
     return resolveFrontoProps(type, {
         ...overrides,
         value,
