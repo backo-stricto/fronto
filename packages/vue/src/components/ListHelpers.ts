@@ -1,4 +1,6 @@
 import type { FrontoStrictoType } from '@backo-stricto/fronto-core'
+import { normalizeRef } from './RefHelpers.js'
+import { normalizeRefsList } from './RefsListHelpers.js'
 
 export function normalizeList(value: unknown): unknown[] | undefined {
     return Array.isArray(value) ? value : undefined
@@ -6,7 +8,13 @@ export function normalizeList(value: unknown): unknown[] | undefined {
 
 export function inferListItemType(value: unknown): FrontoStrictoType {
     if (Array.isArray(value)) {
+        if (value.length > 0 && normalizeRefsList(value) !== undefined) {
+            return 'RefsList'
+        }
         return 'List'
+    }
+    if (normalizeRef(value) !== undefined) {
+        return 'Ref'
     }
     if (typeof value === 'boolean') {
         return 'Bool'

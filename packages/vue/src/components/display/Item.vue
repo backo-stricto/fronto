@@ -10,13 +10,15 @@ import Dict from './Dict.vue'
 import Float from './Float.vue'
 import Int from './Int.vue'
 import List from './List.vue'
+import Ref from './Ref.vue'
+import RefsList from './RefsList.vue'
 import String from './String.vue'
 
 const props = defineProps<FrontoProps<'Item'>>()
 const resolvedValue = useFrontoValue<'Item'>(props, normalizeItem)
 
-const scalarComponents = { Bool, Float, Int, String, Datetime, Bytes } as const
-const compoundComponents = { List, Dict } as const
+const scalarComponents = { Bool, Float, Int, String, Datetime, Bytes, Ref } as const
+const compoundComponents = { List, Dict, RefsList } as const
 
 function componentFor(value: unknown) {
     const type = inferItemValueType(value)

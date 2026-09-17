@@ -2,14 +2,16 @@
 import { computed } from 'vue'
 import type { FrontoProps } from '@backo-stricto/fronto-core'
 import DisplayField from '../DisplayField.vue'
-import { resolveNestedFrontoProps, useFrontoValue } from '../common'
-import { inferListItemType, normalizeList } from '../ListHelpers'
+import { resolveNestedFrontoProps, useFrontoValue } from '../common.js'
+import { inferListItemType, normalizeList } from '../ListHelpers.js'
 import Bool from './Bool.vue'
 import Float from './Float.vue'
 import Int from './Int.vue'
 import String from './String.vue'
 import Datetime from './Datetime.vue'
 import Bytes from './Bytes.vue'
+import Ref from './Ref.vue'
+import RefsList from './RefsList.vue'
 
 const props = defineProps<FrontoProps<'List'>>()
 
@@ -22,14 +24,18 @@ const leafComponents = {
     String,
     Datetime,
     Bytes,
+    Ref,
 } as const
 
 function componentFor(
     item: unknown,
-): (typeof leafComponents)[keyof typeof leafComponents] | 'List' | null {
+): (typeof leafComponents)[keyof typeof leafComponents] | 'List' | typeof RefsList | null {
     const type = inferListItemType(item)
     if (type === 'List') {
         return 'List'
+    }
+    if (type === 'RefsList') {
+        return RefsList
     }
     if (type in leafComponents) {
         return leafComponents[type as keyof typeof leafComponents]

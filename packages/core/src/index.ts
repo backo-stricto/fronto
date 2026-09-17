@@ -84,16 +84,23 @@ export interface FrontoItemField extends FrontoFieldBase {
     defaultValue?: Record<string, unknown>
 }
 
+export interface FrontoRefValue {
+    collection: string
+    id: string | number
+    label?: string
+    [key: string]: unknown
+}
+
 export interface FrontoRefField extends FrontoFieldBase {
     strictoType: 'Ref'
     refType: string
-    defaultValue?: unknown
+    defaultValue?: FrontoRefValue | null
 }
 
 export interface FrontoRefsListField extends FrontoFieldBase {
     strictoType: 'RefsList'
     itemType: FrontoRefField
-    defaultValue?: unknown[]
+    defaultValue?: FrontoRefValue[]
 }
 
 export type FrontoFieldDefinition =
@@ -153,8 +160,8 @@ export type FrontoTypeMap = {
     List: unknown[]
     Dict: Record<string, unknown>
     Item: Record<string, unknown>
-    Ref: unknown
-    RefsList: unknown[]
+    Ref: FrontoRefValue | null
+    RefsList: FrontoRefValue[]
 }
 
 export interface FrontoComponentProps<TValue = unknown> {
@@ -232,8 +239,8 @@ export const FRONTO_TYPE_DEFAULTS = {
         enum: undefined,
     },
     Ref: {
-        value: null,
-        defaultValue: null,
+        value: undefined,
+        defaultValue: undefined,
         enum: undefined,
     },
     RefsList: {

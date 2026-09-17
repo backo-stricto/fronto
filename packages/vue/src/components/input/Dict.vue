@@ -11,6 +11,8 @@ import String from './String.vue'
 import Datetime from './Datetime.vue'
 import Bytes from './Bytes.vue'
 import List from './List.vue'
+import Ref from './Ref.vue'
+import RefsList from './RefsList.vue'
 
 const props = defineProps<FrontoProps<'Dict'>>()
 
@@ -29,12 +31,12 @@ watch(resolvedValue, (value) => {
     inputValue.value = { ...value }
 })
 
-const scalarComponents = { Bool, Float, Int, String, Datetime, Bytes } as const
-const compoundComponents = { List, Dict: 'Dict' } as const
+const scalarComponents = { Bool, Float, Int, String, Datetime, Bytes, Ref } as const
+const compoundComponents = { List, Dict: 'Dict', RefsList } as const
 
 function componentFor(value: unknown) {
     const type = inferDictValueType(value)
-    if (type === 'List' || type === 'Dict') {
+    if (type === 'List' || type === 'Dict' || type === 'RefsList') {
         return compoundComponents[type]
     }
     return type in scalarComponents ? scalarComponents[type as keyof typeof scalarComponents] : null

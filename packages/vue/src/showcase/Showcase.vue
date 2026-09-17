@@ -107,6 +107,41 @@ const showCaseOverrides: Record<FrontoStrictoType, Partial<FrontoComponentProps<
         },
         enum: undefined,
     },
+    Ref: {
+        exist: true,
+        readable: true,
+        writable: true,
+        description: 'A reference to another collection item',
+        required: false,
+        defaultValue: null,
+        value: {
+            collection: 'School',
+            id: 'hogwarts',
+            label: 'Hogwarts',
+        },
+        enum: undefined,
+    },
+    RefsList: {
+        exist: true,
+        readable: true,
+        writable: true,
+        description: 'A list of references to another collection',
+        required: false,
+        defaultValue: [],
+        value: [
+            {
+                collection: 'School',
+                id: 'hogwarts',
+                label: 'Hogwarts',
+            },
+            {
+                collection: 'School',
+                id: 'beauxbatons',
+                label: 'Beauxbatons',
+            },
+        ],
+        enum: undefined,
+    },
 }
 
 const VARIANTS = Array.from(

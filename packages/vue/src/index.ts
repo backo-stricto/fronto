@@ -121,4 +121,24 @@ export const FRONTO_VUE_COMPONENT_SOURCES: ReadonlyArray<FrontoComponentSource> 
         variant: 'display',
         sourcePath: 'src/components/display/Item.vue',
     },
+    {
+        strictoType: 'Ref',
+        variant: 'input',
+        sourcePath: 'src/components/input/Ref.vue',
+    },
+    {
+        strictoType: 'Ref',
+        variant: 'display',
+        sourcePath: 'src/components/display/Ref.vue',
+    },
+    {
+        strictoType: 'RefsList',
+        variant: 'input',
+        sourcePath: 'src/components/input/RefsList.vue',
+    },
+    {
+        strictoType: 'RefsList',
+        variant: 'display',
+        sourcePath: 'src/components/display/RefsList.vue',
+    },
 ]

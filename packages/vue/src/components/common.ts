@@ -16,11 +16,26 @@ export function useFrontoValue<K extends keyof FrontoTypeMap>(
         if (value !== undefined) {
             return value
         }
+
         const defaultValue = normalizeFn(props.defaultValue)
         if (defaultValue !== undefined) {
             return defaultValue
         }
         throw new Error('Invalid Fronto default value')
+    })
+}
+
+export function useLooseFrontoValue<K extends keyof FrontoTypeMap>(
+    props: Pick<FrontoProps<K>, 'value' | 'defaultValue'>,
+    normalizeFn: (value: unknown) => FrontoTypeMap[K] | undefined,
+) {
+    return computed<FrontoTypeMap[K] | undefined>(() => {
+        const value = normalizeFn(props.value)
+        if (value !== undefined) {
+            return value
+        }
+
+        return normalizeFn(props.defaultValue)
     })
 }
 
@@ -45,6 +60,8 @@ export function resolveNestedFrontoProps(
     })
 }
 
-export function isCompoundFrontoType(type: FrontoStrictoType): type is 'List' | 'Dict' {
-    return type === 'List' || type === 'Dict'
+export function isCompoundFrontoType(
+    type: FrontoStrictoType,
+): type is 'List' | 'Dict' | 'RefsList' {
+    return type === 'List' || type === 'Dict' || type === 'RefsList'
 }

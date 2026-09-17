@@ -13,6 +13,8 @@ describe('ItemHelpers', () => {
         expect(inferItemValueType(37)).toBe('Int')
         expect(inferItemValueType(true)).toBe('Bool')
         expect(inferItemValueType(['admin'])).toBe('List')
+        expect(inferItemValueType([{ collection: 'School', id: 'hogwarts' }])).toBe('RefsList')
+        expect(inferItemValueType({ collection: 'School', id: 'hogwarts' })).toBe('Ref')
         expect(inferItemValueType({ nested: true })).toBe('Dict')
     })
 })

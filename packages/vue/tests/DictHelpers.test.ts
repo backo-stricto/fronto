@@ -35,6 +35,8 @@ describe('DictHelpers', () => {
         expect(inferDictValueType(1)).toBe('Int')
         expect(inferDictValueType(true)).toBe('Bool')
         expect(inferDictValueType(['one'])).toBe('List')
+        expect(inferDictValueType([{ collection: 'School', id: 'hogwarts' }])).toBe('RefsList')
+        expect(inferDictValueType({ collection: 'School', id: 'hogwarts' })).toBe('Ref')
         expect(inferDictValueType({ nested: true })).toBe('Dict')
     })
 })
