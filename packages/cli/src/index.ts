@@ -22,15 +22,14 @@ program
     .argument('<path_to_project>', 'Path to the project directory')
     .option('-f, --framework <framework>', 'Base framework to use (vue or react)', 'vue')
     .action((projectPath: string, options: InstallOptions) => {
-        console.log('Running Fronto CLI for INIT command...')
         if (options.framework !== 'vue') {
             if (options.framework == 'react') {
-                console.error(
-                    `[INIT] Unsupported base framework: ${options.framework} not yet implemented.`,
+                tui.finishLine(
+                    `${tui.commandInfo('INSTALL')} ${tui.error()} Error: Unsupported base framework: ${options.framework} not yet implemented.`,
                 )
             } else {
-                console.error(
-                    `[INIT] Unsupported base framework: ${options.framework}. Supported frameworks: vue, react`,
+                tui.finishLine(
+                    `${tui.commandInfo('INSTALL')} ${tui.error()} Error: Unsupported base framework: ${options.framework}. Supported frameworks: vue, react`,
                 )
             }
             return

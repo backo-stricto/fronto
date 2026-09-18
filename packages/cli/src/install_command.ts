@@ -2,8 +2,13 @@ import * as path from 'path'
 import * as fileSystem from 'fs'
 import * as url from 'url'
 import * as core from '@backo-stricto/fronto-core'
+import * as tui from './common.js'
+import pc from 'picocolors'
 
 function do_install(projectPath: string, baseFramework: string): void {
+    tui.finishLine(
+        `${tui.commandInfo('INSTALL')} ${tui.info()} Initializing project at ${pc.inverse(projectPath)} with basic ${pc.inverse(baseFramework)} Fronto components...`,
+    )
     const choosenFramework: string = baseFramework.toLowerCase()
     const packageRoot = path.dirname(
         url.fileURLToPath(
@@ -11,21 +16,6 @@ function do_install(projectPath: string, baseFramework: string): void {
         ),
     )
     const sourceComponentsPath = path.join(packageRoot, 'src/components')
-    switch (baseFramework.toLowerCase()) {
-        case 'vue':
-            console.log(
-                `[INSTALL] Initializing project at ${projectPath} with basic Vue Fronto components...`,
-            )
-            break
-        default:
-            console.error(
-                `[INSTALL] Unsupported base framework: ${baseFramework}. Supported frameworks: vue`,
-            )
-            return
-    }
-    console.log(
-        `[INSTALL] Initializing project at ${projectPath} with basic ${baseFramework} Fronto components...`,
-    )
     if (!fileSystem.statSync(projectPath, { throwIfNoEntry: false })) {
         fileSystem.mkdirSync(projectPath, { recursive: true })
     }
@@ -45,16 +35,17 @@ function do_install(projectPath: string, baseFramework: string): void {
                 componentsCategoryDir,
                 file.name,
             )
-            console.log(
-                `[INSTALL] Copying file ${file.parentPath}/${file.name} to ${componentTargetPath}`,
+            tui.finishLine(
+                `${tui.commandInfo('INSTALL')} ${tui.info()} ${tui.commandInfo('COPY')} ${file.name} → ${pc.inverse(componentTargetPath)}`,
             )
+
             fileSystem.mkdirSync(path.join(targetComponentsPath, componentsCategoryDir), {
                 recursive: true,
             })
             fileSystem.copyFileSync(path.join(file.parentPath, file.name), componentTargetPath)
         }
     }
-    console.log(`[INSTALL] Project initialized successfully at ${projectPath}.`)
+    // Create the base overrides directory and the items overrides directory
     const baseOverridesPath: string = path.join(
         projectPath,
         core.FRONTO_COMPONENTS_OVERRIDES_BASE_PATH,
@@ -62,17 +53,23 @@ function do_install(projectPath: string, baseFramework: string): void {
     core.FrontoVariants.forEach((variant: string) => {
         const variantOverridesPath: string = path.join(baseOverridesPath, variant)
         fileSystem.mkdirSync(variantOverridesPath, { recursive: true })
-        console.log(
-            `[INSTALL] Created items overrides directory for variant ${variant} at ${variantOverridesPath}`,
+        tui.finishLine(
+            `${tui.commandInfo('INSTALL')} ${tui.success()} ${tui.commandInfo('MKDIR')} ${pc.inverse(variantOverridesPath)}`,
         )
     })
-    console.log(`[INSTALL] Created base overrides directory at ${baseOverridesPath}`)
     const itemsOverridesPath: string = path.join(
         projectPath,
         core.FRONTO_COMPONENTS_OVERRIDES_ITEMS_PATH,
     )
     fileSystem.mkdirSync(itemsOverridesPath, { recursive: true })
-    console.log(`[INSTALL] Created items overrides directory at ${itemsOverridesPath}`)
+    tui.finishLine(
+        `${tui.commandInfo('INSTALL')} ${tui.success()} ${tui.commandInfo('MKDIR')} ${pc.inverse(itemsOverridesPath)}`,
+    )
+    tui.finishLine(
+        `${tui.commandInfo('INSTALL')} ${tui.success()} Project initialized successfully at ${pc.inverse(
+            projectPath,
+        )}.`,
+    )
 }
 
 export { do_install }
