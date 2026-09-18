@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { reactive } from 'vue'
 import {
     FRONTO_COMPONENTS_REGISTRY,
     FrontoComponentProps,
@@ -153,34 +154,146 @@ const VARIANTS = Array.from(
 )
 
 const VARIANT_COLUMNS_COUNT = Math.max(VARIANTS.length, 1)
+const SHOWCASE_PROP_KEYS = [
+    'exist',
+    'readable',
+    'writable',
+    'description',
+    'required',
+    'defaultValue',
+    'value',
+    'enum',
+] as const
 
-const gridTemplateColumns = `minmax(140px, 180px) repeat(${VARIANT_COLUMNS_COUNT}, minmax(220px, 1fr))`
+type ShowcasePropKey = (typeof SHOWCASE_PROP_KEYS)[number]
+type ShowcaseEditorKind = 'boolean' | 'text' | 'json'
+const PROPS_COLUMNS_COUNT = SHOWCASE_PROP_KEYS.length
+
+const SHOWCASE_PROP_EDITORS: Record<ShowcasePropKey, ShowcaseEditorKind> = {
+    exist: 'boolean',
+    readable: 'boolean',
+    writable: 'boolean',
+    description: 'text',
+    required: 'boolean',
+    defaultValue: 'json',
+    value: 'json',
+    enum: 'json',
+}
+
+const variantColumnsTemplate =
+    VARIANTS.length > 0
+        ? VARIANTS.map((variant) => {
+              const lowerVariant = variant.toLowerCase()
+              if (lowerVariant === 'input') {
+                  return 'max(250px, 20vw)'
+              }
+              if (lowerVariant === 'display') {
+                  return 'max(200px, 15vw)'
+              }
+              return 'minmax(220px, 1fr)'
+          }).join(' ')
+        : 'minmax(220px, 1fr)'
+
+const gridTemplateColumns = `minmax(120px, 160px) ${variantColumnsTemplate} repeat(${PROPS_COLUMNS_COUNT}, minmax(160px, 220px))`
+const variantsGroupGridColumn = `2 / span ${VARIANT_COLUMNS_COUNT}`
+const propsGroupGridColumn = `${2 + VARIANT_COLUMNS_COUNT} / span ${PROPS_COLUMNS_COUNT}`
+
+const editableOverrides = reactive(
+    Object.fromEntries(
+        Object.entries(showCaseOverrides).map(([type, overrides]) => [type, { ...overrides }]),
+    ) as Record<FrontoStrictoType, Partial<FrontoComponentProps<unknown>>>,
+)
+
+function isEditorKind(key: ShowcasePropKey, editorKind: ShowcaseEditorKind): boolean {
+    return SHOWCASE_PROP_EDITORS[key] === editorKind
+}
+
+function getRawPropValue(type: FrontoStrictoType, key: ShowcasePropKey): unknown {
+    return editableOverrides[type][key]
+}
+
+function getBooleanPropValue(type: FrontoStrictoType, key: ShowcasePropKey): string {
+    return getRawPropValue(type, key) === true ? 'true' : 'false'
+}
+
+function setBooleanPropValue(type: FrontoStrictoType, key: ShowcasePropKey, value: string): void {
+    editableOverrides[type][key] = value === 'true'
+}
+
+function getTextPropValue(type: FrontoStrictoType, key: ShowcasePropKey): string {
+    const value = getRawPropValue(type, key)
+    return typeof value === 'string' ? value : ''
+}
+
+function setTextPropValue(type: FrontoStrictoType, key: ShowcasePropKey, value: string): void {
+    editableOverrides[type][key] = value
+}
+
+function getJsonPropValue(type: FrontoStrictoType, key: ShowcasePropKey): string {
+    const value = getRawPropValue(type, key)
+    if (value === undefined) {
+        return ''
+    }
+    return JSON.stringify(value)
+}
+
+function setJsonPropValue(type: FrontoStrictoType, key: ShowcasePropKey, value: string): void {
+    if (value.trim() === '') {
+        editableOverrides[type][key] = undefined
+        return
+    }
+    try {
+        editableOverrides[type][key] = JSON.parse(value)
+    } catch {
+        // Keep last valid value while user is typing invalid JSON.
+    }
+}
 
 function getComponentProps(
     type: FrontoStrictoType,
 ): FrontoComponentProps<FrontoTypeMap[typeof type]> {
-    const props = resolveFrontoProps(type, showCaseOverrides[type])
-    console.log('[ SHOWCASE ] getComponentProps', type, props)
+    const props = resolveFrontoProps(type, editableOverrides[type])
     return props
 }
 </script>
 
 <template>
-    <main class="mx-auto max-w-[1100px] p-8">
+    <main class="w-full p-8">
         <h1 class="mb-6 text-3xl font-bold tracking-tight">Fronto components showcase</h1>
 
         <section
-            class="mx-auto grid w-fit items-stretch gap-0 max-[740px]:grid-cols-1"
+            class="grid w-fit items-stretch gap-0 max-[740px]:grid-cols-1"
             :style="{ gridTemplateColumns }">
-            <div class="border-b border-base-300 px-4 py-3 font-bold capitalize max-[740px]:hidden">
-                Type
+            <div class="border-b border-base-300 bg-base-300 px-4 py-2 max-[740px]:hidden" />
+
+            <div
+                class="border-b border-base-300 bg-base-300 px-4 py-2 text-center text-sm font-bold uppercase tracking-wide max-[740px]:hidden"
+                :style="{ gridColumn: variantsGroupGridColumn }">
+                Variants
             </div>
+
+            <div
+                class="border-b border-base-300 border-l border-l-base-300 bg-base-300 px-4 py-2 text-center text-sm font-bold uppercase tracking-wide max-[740px]:hidden"
+                :style="{ gridColumn: propsGroupGridColumn }">
+                Props
+            </div>
+
+            <div
+                class="border-b border-base-300 bg-base-200 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-base-content/80 max-[740px]:hidden"></div>
 
             <div
                 v-for="variant in VARIANTS"
                 :key="`header-${variant}`"
-                class="border-b border-base-300 px-4 py-3 font-bold capitalize max-[740px]:hidden">
+                class="border-b border-base-300 bg-base-200 px-4 py-3 font-bold capitalize max-[740px]:hidden">
                 {{ variant }}
+            </div>
+
+            <div
+                v-for="(propKey, propIndex) in SHOWCASE_PROP_KEYS"
+                :key="`header-prop-${propKey}`"
+                class="border-b border-base-300 bg-base-200 px-3 py-3 font-bold max-[740px]:hidden"
+                :class="{ 'border-l border-l-base-300': propIndex === 0 }">
+                {{ propKey }}
             </div>
 
             <template
@@ -199,6 +312,51 @@ function getComponentProps(
                         v-if="variant in variants"
                         :is="resolveFrontoComponent(type, variant)"
                         v-bind="getComponentProps(type)" />
+                </div>
+
+                <div
+                    v-for="(propKey, propIndex) in SHOWCASE_PROP_KEYS"
+                    :key="`${type}-${propKey}`"
+                    class="border-b border-base-200 px-3 py-3"
+                    :class="{ 'border-l border-l-base-300 bg-base-100/60': propIndex === 0 }">
+                    <select
+                        v-if="isEditorKind(propKey, 'boolean')"
+                        class="select select-bordered select-xs w-full"
+                        :value="getBooleanPropValue(type, propKey)"
+                        @change="
+                            setBooleanPropValue(
+                                type,
+                                propKey,
+                                ($event.target as HTMLSelectElement).value,
+                            )
+                        ">
+                        <option value="true">true</option>
+                        <option value="false">false</option>
+                    </select>
+
+                    <input
+                        v-else-if="isEditorKind(propKey, 'text')"
+                        class="input input-bordered input-xs w-full"
+                        :value="getTextPropValue(type, propKey)"
+                        @input="
+                            setTextPropValue(
+                                type,
+                                propKey,
+                                ($event.target as HTMLInputElement).value,
+                            )
+                        " />
+
+                    <textarea
+                        v-else
+                        class="textarea textarea-bordered textarea-xs w-full min-h-16 font-mono"
+                        :value="getJsonPropValue(type, propKey)"
+                        @input="
+                            setJsonPropValue(
+                                type,
+                                propKey,
+                                ($event.target as HTMLTextAreaElement).value,
+                            )
+                        " />
                 </div>
             </template>
         </section>
