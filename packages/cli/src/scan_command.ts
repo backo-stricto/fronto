@@ -54,10 +54,10 @@ function do_scan(projectPath: string): void {
             )
         } else {
             tui.finishLine(
-                `${tui.commandInfo('SCAN')} Components scanning for [ ${pc.inverse(strictoType)} ] [ ${pc.green('DONE')} ] [ ${pc.yellow(`MISSING: ${missing.join(', ')}`)} ]`,
+                `${tui.commandInfo('SCAN')} Components scanning for [ ${pc.inverse(strictoType)} ] [ ${pc.green('DONE')} ] [ ${pc.yellow(`MISSING COMPONENTS`)} ]`,
             )
             missing.forEach((missingFile: string) => {
-                tui.finishLine(`${tui.errorMark()} ${missingFile}`)
+                tui.finishLine(`\t${tui.errorMark()} ${missingFile}`)
             })
         }
         if (overrides.length > 0) {
