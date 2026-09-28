@@ -1,7 +1,7 @@
 import { program } from 'commander'
 import { do_install } from './install_command.js'
-import { do_generate } from './generate_command.js'
 import { do_scan } from './scan_command.js'
+import { do_generate } from './generate_command.js'
 import { do_showcase } from './showcase_command.js'
 import * as tui from './common.js'
 
@@ -38,10 +38,33 @@ program
     })
 
 program
-    .command('generate <url_to_fronto_project>')
-    .description('Generate code for a Fronto project')
-    .action((url) => {
-        do_generate(url)
+    .command('generate')
+    .description(
+        'Generate code for a Fronto project from the running Backend API living at the specified URL',
+    )
+    .argument('<path_to_project>', 'Path to the project directory')
+    .option(
+        '-u, --url <url_to_backend_api_server>',
+        'URL to the running Backend API for the Fronto project',
+        'http://localhost:5000',
+    )
+    .option(
+        '-n, --name <internal_name_of_backend_api_server>',
+        'Internal name of the Backend API server',
+        'default',
+    )
+    .action((projectPath: string, options: { url: string; name: string }) => {
+        do_generate(projectPath, options.url, options.name)
+            .then(() => {
+                tui.finishLine(
+                    `${tui.commandInfo('GENERATE')} ${tui.success()} Code generation completed successfully.`,
+                )
+            })
+            .catch((error: Error) => {
+                tui.finishLine(
+                    `${tui.commandInfo('GENERATE')} ${tui.error()} Error during code generation: ${error.message}`,
+                )
+            })
     })
 
 program
