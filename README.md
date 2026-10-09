@@ -36,7 +36,7 @@ Basically it will copy the Fronto base components assets into your project, belo
 npx --package=@backo-stricto/fronto-cli fronto -- scan <project's src root path>
 ```
 
-It will scan `<project's src root path>/fronto` and create a `registry.ts` below `<project's src root path>/fronto/components`.
+It will scan `<project's src root path>/fronto` and create both `registry.ts` (base components) and `registry.items.ts` (generated item components) below `<project's src root path>/fronto/components`.
 
 ### Create the showcase mini-app
 
