@@ -50,3 +50,41 @@ A fully standalone minimal showcase app will be setup.
 Go to `<destination path>/showcase` and run `npm i` to install dependencies.
 
 Then run `npm run dev` to visualize the app at `http://localhost:5173`
+
+## Quick Startup
+
+1. Create the user's project
+
+    ```bash
+    $ mkdir /tmp/myproject
+    $ cd /tmp/myproject
+    $ npm init --yes
+    $ npm add /data/scm/myprojects/fronto/packages/core/backo-stricto-fronto-core-0.1.0.tgz
+    $ cd showcase
+    $ npm install
+    $ npm run dev
+    ```
+
+1. Install the Fronto components into the user's project
+
+    ```bash
+    $ node ./packages/cli/dist/index.js install /tmp/myproject --framework vue
+    ```
+
+1. Scan the components for overrides
+
+    ```bash
+    $ node ./packages/cli/dist/index.js scan /tmp/myproject
+    ```
+
+1. Produce the base showcase app
+
+    ```bash
+    $ node ./packages/cli/dist/index.js showcase --fronto /tmp/myproject/fronto/components --destination /tmp/myproject/
+    ```
+
+1. After running the user's app which present a REST API, generate the application's components
+
+```bash
+    $ node ./packages/cli/dist/index.js generate /tmp/myproject -u http://localhost:5000 -n fronto_toy_app
+```
