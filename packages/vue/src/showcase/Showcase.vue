@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, watchEffect } from 'vue'
 import {
     FRONTO_COMPONENTS_REGISTRY,
+    FRONTO_ITEMS_COMPONENTS_REGISTRY,
+    FRONTO_ITEMS_COMPONENTS_SOURCE,
     FrontoComponentProps,
     FrontoTypeMap,
     resolveFrontoComponent,
+    resolveFrontoItemComponent,
 } from './registry'
 import { FrontoStrictoType, resolveFrontoProps } from '@backo-stricto/fronto-core'
 
@@ -17,11 +20,23 @@ type GeneratedItemEntry = {
     source: GeneratedItemSource
 }
 
+type GeneratedItemsRegistry = Record<string, Record<string, unknown>>
+
+type GeneratedItemPreviewValue = Record<string, unknown>
+
 const activeTab = ref<ShowcaseTab>('base')
 
-// Generated item components are not wired yet. The list remains empty until
-// scan/generate exposes item metadata and paths to the showcase registry.
-const GENERATED_ITEMS = ref<GeneratedItemEntry[]>([])
+const GENERATED_ITEMS = computed<GeneratedItemEntry[]>(() => {
+    return Object.keys(FRONTO_ITEMS_COMPONENTS_REGISTRY as GeneratedItemsRegistry)
+        .sort((a, b) => a.localeCompare(b))
+        .map((itemName) => ({
+            key: itemName,
+            name: itemName,
+            source:
+                FRONTO_ITEMS_COMPONENTS_SOURCE[itemName] === 'override' ? 'override' : 'vanilla',
+        }))
+})
+
 const selectedGeneratedItemKey = ref<string | null>(null)
 
 const selectedGeneratedItem = computed(() => {
@@ -33,6 +48,43 @@ const selectedGeneratedItem = computed(() => {
 
 function selectGeneratedItem(itemKey: string): void {
     selectedGeneratedItemKey.value = itemKey
+}
+
+watchEffect(() => {
+    if (!selectedGeneratedItemKey.value && GENERATED_ITEMS.value.length > 0) {
+        selectedGeneratedItemKey.value = GENERATED_ITEMS.value[0].key
+        return
+    }
+
+    if (
+        selectedGeneratedItemKey.value &&
+        !GENERATED_ITEMS.value.some((item) => item.key === selectedGeneratedItemKey.value)
+    ) {
+        selectedGeneratedItemKey.value = GENERATED_ITEMS.value[0]?.key ?? null
+    }
+})
+
+const selectedGeneratedItemValue = ref<GeneratedItemPreviewValue>({})
+
+function resolveGeneratedItemProps(): FrontoComponentProps<GeneratedItemPreviewValue> {
+    return resolveFrontoProps('Item', {
+        value: selectedGeneratedItemValue.value,
+        defaultValue: {},
+        description: `Generated item component preview: ${selectedGeneratedItem?.value?.name ?? ''}`,
+    })
+}
+
+function onGeneratedItemValueUpdate(nextValue: unknown): void {
+    if (nextValue && typeof nextValue === 'object' && !Array.isArray(nextValue)) {
+        selectedGeneratedItemValue.value = nextValue as GeneratedItemPreviewValue
+    }
+}
+
+function resolveSelectedItemVariantComponent(variant: 'display' | 'input'): unknown {
+    if (!selectedGeneratedItem.value) {
+        return undefined
+    }
+    return resolveFrontoItemComponent(selectedGeneratedItem.value.key, variant)
 }
 
 const showCaseOverrides: Record<FrontoStrictoType, Partial<FrontoComponentProps<unknown>>> = {
@@ -464,7 +516,11 @@ function getComponentProps(
                         </h2>
                         <div
                             class="flex min-h-44 items-center justify-center rounded-box border border-dashed border-base-300 bg-base-100 text-sm text-base-content/70">
-                            Component rendering will be wired soon.
+                            <component
+                                :is="resolveSelectedItemVariantComponent('display')"
+                                v-if="resolveSelectedItemVariantComponent('display')"
+                                v-bind="resolveGeneratedItemProps()" />
+                            <span v-else>Display component not available for this item.</span>
                         </div>
                     </article>
 
@@ -475,7 +531,12 @@ function getComponentProps(
                         </h2>
                         <div
                             class="flex min-h-44 items-center justify-center rounded-box border border-dashed border-base-300 bg-base-100 text-sm text-base-content/70">
-                            Component rendering will be wired soon.
+                            <component
+                                :is="resolveSelectedItemVariantComponent('input')"
+                                v-if="resolveSelectedItemVariantComponent('input')"
+                                v-bind="resolveGeneratedItemProps()"
+                                @update:value="onGeneratedItemValueUpdate" />
+                            <span v-else>Input component not available for this item.</span>
                         </div>
                     </article>
                 </div>
