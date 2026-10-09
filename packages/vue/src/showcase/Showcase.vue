@@ -466,7 +466,7 @@ function getComponentProps(
             class="grid gap-4 md:grid-cols-[minmax(220px,280px)_1fr]">
             <aside class="rounded-box border border-base-300 bg-base-100">
                 <div
-                    class="border-b border-base-300 px-4 py-3 text-sm font-semibold uppercase tracking-wide">
+                    class="border-b border-base-300 bg-base-300 px-4 py-3 text-sm font-semibold uppercase tracking-wide">
                     Items
                 </div>
 
@@ -499,21 +499,26 @@ function getComponentProps(
                 </ul>
             </aside>
 
-            <div class="rounded-box border border-base-300 bg-base-100 p-4">
+            <div class="rounded-box border border-base-300 bg-base-100">
                 <div
                     v-if="!selectedGeneratedItem"
-                    class="flex min-h-52 items-center justify-center rounded-box border border-dashed border-base-300 text-sm text-base-content/70">
+                    class="flex min-h-52 items-center justify-center p-4 text-sm text-base-content/70">
                     Select an item on the left to preview its display and input versions.
                 </div>
 
                 <div
                     v-else
-                    class="grid gap-4 lg:grid-cols-2">
-                    <article class="rounded-box border border-base-300 bg-base-50 p-4">
-                        <h2
-                            class="mb-3 text-sm font-semibold uppercase tracking-wide text-base-content/80">
-                            display
-                        </h2>
+                    class="grid grid-cols-2">
+                    <div
+                        class="border-b border-base-300 bg-base-300 px-4 py-3 text-center text-sm font-semibold uppercase tracking-wide text-base-content/80">
+                        display
+                    </div>
+                    <div
+                        class="border-b border-l border-base-300 bg-base-300 px-4 py-3 text-center text-sm font-semibold uppercase tracking-wide text-base-content/80">
+                        input
+                    </div>
+
+                    <div class="px-4 py-4">
                         <div
                             class="flex min-h-44 items-center justify-center rounded-box border border-dashed border-base-300 bg-base-100 text-sm text-base-content/70">
                             <component
@@ -522,13 +527,9 @@ function getComponentProps(
                                 v-bind="resolveGeneratedItemProps()" />
                             <span v-else>Display component not available for this item.</span>
                         </div>
-                    </article>
+                    </div>
 
-                    <article class="rounded-box border border-base-300 bg-base-50 p-4">
-                        <h2
-                            class="mb-3 text-sm font-semibold uppercase tracking-wide text-base-content/80">
-                            input
-                        </h2>
+                    <div class="border-l border-base-300 px-4 py-4">
                         <div
                             class="flex min-h-44 items-center justify-center rounded-box border border-dashed border-base-300 bg-base-100 text-sm text-base-content/70">
                             <component
@@ -538,7 +539,7 @@ function getComponentProps(
                                 @update:value="onGeneratedItemValueUpdate" />
                             <span v-else>Input component not available for this item.</span>
                         </div>
-                    </article>
+                    </div>
                 </div>
             </div>
         </section>
