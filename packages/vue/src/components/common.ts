@@ -44,11 +44,13 @@ export function resolveNestedFrontoProps<T extends keyof FrontoTypeMap>(
     value: FrontoTypeMap[T],
     overrides?: Partial<FrontoProps<T>>,
 ): FrontoProps<T>
+
 export function resolveNestedFrontoProps(
     type: keyof FrontoTypeMap,
     value: unknown,
     overrides?: Partial<FrontoComponentProps<unknown>>,
 ): FrontoComponentProps<unknown>
+
 export function resolveNestedFrontoProps(
     type: keyof FrontoTypeMap,
     value: unknown,
