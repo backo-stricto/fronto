@@ -63,27 +63,30 @@ function generate_showcase_registry_file(
     frontoComponentsPath: string,
     projectRootPath: string,
 ): void {
-    // create the file showcase_registry.ts file in the project directory if it doesn't exist
     const showcaseRegistryFilePath: string = path.join(projectRootPath, 'showcase', 'registry.ts')
-    if (!fileSystem.existsSync(showcaseRegistryFilePath)) {
-        // create the file
-        fileSystem.writeFileSync(showcaseRegistryFilePath, '')
-    } else {
-        // Empty the file if it already exists
-        fileSystem.writeFileSync(showcaseRegistryFilePath, '', { flag: 'w' })
-    }
-    // compute the relative path from the showcase registry file path to the fronto components registry file path
+
+    tui.finishLine(
+        `${tui.commandInfo('SHOWCASE')} ${tui.info()} Regenerating showcase registry at ${pc.inverse(showcaseRegistryFilePath)}...`,
+    )
+
     const relativePath: string = path.relative(
         path.dirname(showcaseRegistryFilePath),
         frontoComponentsPath,
     )
-    // add the generated code notice to the top of the file
-    fileSystem.writeFileSync(showcaseRegistryFilePath, `${core.FRONTO_GENERATED_CODE_NOTICE}\n\n`, {
-        flag: 'a',
+
+    const content = `${core.FRONTO_GENERATED_CODE_NOTICE}
+
+export { FRONTO_COMPONENTS_REGISTRY, resolveFrontoComponent } from '${relativePath}/registry'
+export {
+    FRONTO_ITEMS_COMPONENTS_REGISTRY,
+    FRONTO_ITEMS_COMPONENTS_SOURCE,
+    resolveFrontoItemComponent,
+} from '${relativePath}/registry.items'
+`
+
+    fileSystem.writeFileSync(showcaseRegistryFilePath, content, {
+        encoding: 'utf-8',
     })
-    // add the import statement to the showcase_registry.ts file
-    const exportStatement: string = `export { FRONTO_COMPONENTS_REGISTRY, resolveFrontoComponent } from '${relativePath}/registry'\n`
-    fileSystem.writeFileSync(showcaseRegistryFilePath, exportStatement, { flag: 'a' })
 }
 
 export { do_showcase }
