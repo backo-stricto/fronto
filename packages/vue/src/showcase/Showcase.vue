@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import {
     FRONTO_COMPONENTS_REGISTRY,
     FrontoComponentProps,
@@ -7,6 +7,33 @@ import {
     resolveFrontoComponent,
 } from './registry'
 import { FrontoStrictoType, resolveFrontoProps } from '@backo-stricto/fronto-core'
+
+type ShowcaseTab = 'base' | 'items'
+type GeneratedItemSource = 'vanilla' | 'override'
+
+type GeneratedItemEntry = {
+    key: string
+    name: string
+    source: GeneratedItemSource
+}
+
+const activeTab = ref<ShowcaseTab>('base')
+
+// Generated item components are not wired yet. The list remains empty until
+// scan/generate exposes item metadata and paths to the showcase registry.
+const GENERATED_ITEMS = ref<GeneratedItemEntry[]>([])
+const selectedGeneratedItemKey = ref<string | null>(null)
+
+const selectedGeneratedItem = computed(() => {
+    if (!selectedGeneratedItemKey.value) {
+        return null
+    }
+    return GENERATED_ITEMS.value.find((item) => item.key === selectedGeneratedItemKey.value) ?? null
+})
+
+function selectGeneratedItem(itemKey: string): void {
+    selectedGeneratedItemKey.value = itemKey
+}
 
 const showCaseOverrides: Record<FrontoStrictoType, Partial<FrontoComponentProps<unknown>>> = {
     Bool: {
@@ -261,7 +288,28 @@ function getComponentProps(
     <main class="w-full p-8">
         <h1 class="mb-6 text-3xl font-bold tracking-tight">Fronto components showcase</h1>
 
+        <div
+            role="tablist"
+            aria-label="Showcase sections"
+            class="tabs tabs-lift mb-6 w-fit">
+            <button
+                role="tab"
+                class="tab"
+                :class="{ 'tab-active': activeTab === 'base' }"
+                @click="activeTab = 'base'">
+                base
+            </button>
+            <button
+                role="tab"
+                class="tab"
+                :class="{ 'tab-active': activeTab === 'items' }"
+                @click="activeTab = 'items'">
+                items
+            </button>
+        </div>
+
         <section
+            v-if="activeTab === 'base'"
             class="grid w-fit items-stretch gap-0 max-[740px]:grid-cols-1"
             :style="{ gridTemplateColumns }">
             <div class="border-b border-base-300 bg-base-300 px-4 py-2 max-[740px]:hidden" />
@@ -359,6 +407,79 @@ function getComponentProps(
                         " />
                 </div>
             </template>
+        </section>
+
+        <section
+            v-else
+            class="grid gap-4 md:grid-cols-[minmax(220px,280px)_1fr]">
+            <aside class="rounded-box border border-base-300 bg-base-100">
+                <div
+                    class="border-b border-base-300 px-4 py-3 text-sm font-semibold uppercase tracking-wide">
+                    Items
+                </div>
+
+                <div
+                    v-if="GENERATED_ITEMS.length === 0"
+                    class="px-4 py-6 text-sm text-base-content/70">
+                    No generated items yet.
+                </div>
+
+                <ul
+                    v-else
+                    class="menu w-full p-2">
+                    <li
+                        v-for="item in GENERATED_ITEMS"
+                        :key="item.key">
+                        <button
+                            class="flex items-center justify-between gap-3"
+                            :class="{ 'menu-active': selectedGeneratedItemKey === item.key }"
+                            @click="selectGeneratedItem(item.key)">
+                            <span>{{ item.name }}</span>
+                            <span
+                                class="badge badge-sm"
+                                :class="
+                                    item.source === 'override' ? 'badge-warning' : 'badge-neutral'
+                                ">
+                                {{ item.source }}
+                            </span>
+                        </button>
+                    </li>
+                </ul>
+            </aside>
+
+            <div class="rounded-box border border-base-300 bg-base-100 p-4">
+                <div
+                    v-if="!selectedGeneratedItem"
+                    class="flex min-h-52 items-center justify-center rounded-box border border-dashed border-base-300 text-sm text-base-content/70">
+                    Select an item on the left to preview its display and input versions.
+                </div>
+
+                <div
+                    v-else
+                    class="grid gap-4 lg:grid-cols-2">
+                    <article class="rounded-box border border-base-300 bg-base-50 p-4">
+                        <h2
+                            class="mb-3 text-sm font-semibold uppercase tracking-wide text-base-content/80">
+                            display
+                        </h2>
+                        <div
+                            class="flex min-h-44 items-center justify-center rounded-box border border-dashed border-base-300 bg-base-100 text-sm text-base-content/70">
+                            Component rendering will be wired soon.
+                        </div>
+                    </article>
+
+                    <article class="rounded-box border border-base-300 bg-base-50 p-4">
+                        <h2
+                            class="mb-3 text-sm font-semibold uppercase tracking-wide text-base-content/80">
+                            input
+                        </h2>
+                        <div
+                            class="flex min-h-44 items-center justify-center rounded-box border border-dashed border-base-300 bg-base-100 text-sm text-base-content/70">
+                            Component rendering will be wired soon.
+                        </div>
+                    </article>
+                </div>
+            </div>
         </section>
     </main>
 </template>
