@@ -59,7 +59,7 @@ Then run `npm run dev` to visualize the app at `http://localhost:5173`
     $ mkdir /tmp/myproject
     $ cd /tmp/myproject
     $ npm init --yes
-    $ npm add /data/scm/myprojects/fronto/packages/core/backo-stricto-fronto-core-0.1.0.tgz
+    $ npm add /data/scm/MyProjects/fronto/packages/core/backo-stricto-fronto-core-0.1.0.tgz
     $ cd showcase
     $ npm install
     $ npm run dev
