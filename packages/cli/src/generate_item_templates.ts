@@ -15,6 +15,7 @@ type BoolFieldRenderModel = {
 }
 
 type InputItemApiRoutes = {
+    defaultApiBaseUrl: string
     collectionPath: string
     itemPathTemplate: string
     checkPath: string
@@ -140,6 +141,7 @@ const FIELD_DEFAULTS: Record<string, boolean> = ${JSON.stringify(defaultValues, 
 const FIELD_LABELS: Record<string, string> = ${JSON.stringify(labels, null, 4)}
 const FIELD_WRITABLE: Record<string, boolean> = ${JSON.stringify(writableByField, null, 4)}
 const INPUT_API_ROUTES: {
+    defaultApiBaseUrl: string
     collectionPath: string
     itemPathTemplate: string
     checkPath: string
@@ -302,7 +304,7 @@ function trimTrailingSlash(baseUrl: string): string {
 }
 
 function buildRequestUrl(pathname: string): string {
-    const baseUrl = (props.apiBaseUrl ?? '').trim()
+    const baseUrl = (props.apiBaseUrl ?? INPUT_API_ROUTES.defaultApiBaseUrl ?? '').trim()
     if (baseUrl.length === 0) {
         return pathname
     }

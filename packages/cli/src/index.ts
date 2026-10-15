@@ -14,6 +14,13 @@ type ShowcaseOptions = {
     destination?: string
 }
 
+type GenerateOptions = {
+    backendUrl: string
+    proxyUrl?: string
+    proxyApiPrefix: string
+    name: string
+}
+
 program.name('fronto').description('Fronto CLI').version('0.1.0')
 
 program
@@ -44,17 +51,31 @@ program
     )
     .argument('<path_to_project>', 'Path to the project directory')
     .option(
-        '-u, --url <url_to_backend_api_server>',
+        '-b, --backend-url <url_to_backend_api_server>',
         'URL to the running Backend API for the Fronto project',
         'http://localhost:5000',
+    )
+    .option(
+        '-p, --proxy-url <url_to_frontend_proxy_server>',
+        'Optional frontend proxy server URL used for generated client requests (example: http://localhost:5173)',
+    )
+    .option(
+        '-a, --proxy-api-prefix <proxy_api_prefix>',
+        'Proxy API prefix to prepend before app name for generated client requests',
+        'api',
     )
     .option(
         '-n, --name <internal_name_of_backend_api_server>',
         'Internal name of the Backend API server',
         'default',
     )
-    .action((projectPath: string, options: { url: string; name: string }) => {
-        do_generate(projectPath, options.url, options.name)
+    .action((projectPath: string, options: GenerateOptions) => {
+        do_generate(projectPath, {
+            backendUrl: options.backendUrl,
+            proxyUrl: options.proxyUrl,
+            proxyApiPrefix: options.proxyApiPrefix,
+            name: options.name,
+        })
             .then(() => {
                 tui.finishLine(
                     `${tui.commandInfo('GENERATE')} ${tui.success()} Code generation completed successfully.`,
