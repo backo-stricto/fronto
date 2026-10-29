@@ -17,7 +17,7 @@ import {
 } from './generate_item_templates.js'
 
 const META_URL_SUFFIX = '_meta'
-const OPENAPI_URL_SUFFIX = 'openapi'
+const OPENAPI_URL_SUFFIX = '_openapi'
 
 type GenerateOptions = {
     backendUrl: string
