@@ -2,7 +2,6 @@ type SupportedFieldType = 'Bool' | 'Int' | 'Float' | 'String' | 'Datetime' | 'By
 
 type FieldTypeTemplate = {
     strictoType: SupportedFieldType
-    fallbackValue: unknown
     normalizeValue(value: unknown): unknown | undefined
 }
 

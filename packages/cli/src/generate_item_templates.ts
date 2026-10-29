@@ -6,6 +6,7 @@
  * - display and input templates
  */
 import type { FirField, FirItem } from './generate_fir.js'
+import { resolveFrontoScalarDefaultValue } from '@backo-stricto/fronto-core'
 import type { FieldTypeTemplate, SupportedFieldType } from './item_templates/index.js'
 import { get_field_template } from './item_templates/index.js'
 
@@ -698,7 +699,7 @@ function build_supported_fields_model(fields: FirField[]): SupportedFieldRenderM
             defaultValue:
                 normalizedDefaultValue !== undefined
                     ? normalizedDefaultValue
-                    : template.fallbackValue,
+                    : resolveFrontoScalarDefaultValue(template.strictoType),
         })
     }
 

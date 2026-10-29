@@ -164,6 +164,8 @@ export type FrontoTypeMap = {
     RefsList: FrontoRefValue[]
 }
 
+export type FrontoScalarType = 'Bool' | 'Int' | 'Float' | 'String' | 'Datetime' | 'Bytes'
+
 export interface FrontoComponentProps<TValue = unknown> {
     exist?: boolean
     readable?: boolean
@@ -260,6 +262,16 @@ export function resolveFrontoProps<T extends keyof FrontoTypeMap>(
         ...typeDefaults,
         ...provided,
     } as FrontoComponentProps<FrontoTypeMap[T]>
+}
+
+export function resolveFrontoScalarDefaultValue(
+    type: FrontoScalarType,
+): FrontoTypeMap[FrontoScalarType] {
+    const defaultValue = FRONTO_TYPE_DEFAULTS[type].defaultValue
+    if (defaultValue === undefined) {
+        throw new Error(`Missing scalar default value for type: ${type}`)
+    }
+    return defaultValue as FrontoTypeMap[FrontoScalarType]
 }
 
 export function normalizeDatetimeToUtcIso(

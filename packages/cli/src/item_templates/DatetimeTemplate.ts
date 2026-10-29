@@ -15,7 +15,6 @@ function normalize_datetime(value: unknown): string | undefined {
 
 const DATETIME_TEMPLATE: FieldTypeTemplate = {
     strictoType: 'Datetime',
-    fallbackValue: '1970-01-01T00:00:00.000Z',
     normalizeValue(value: unknown): unknown | undefined {
         return normalize_datetime(value)
     },

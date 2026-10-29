@@ -18,6 +18,28 @@ const INPUT_ROUTES: InputItemApiRoutes = {
 }
 
 describe('generate_item_templates', () => {
+    it('uses core scalar default for bool when schema default is invalid', () => {
+        const item: FirItem = {
+            collectionName: 'feature_flags',
+            componentNameBase: 'FeatureFlagsItem',
+            fields: [
+                {
+                    key: 'is_enabled',
+                    label: 'Is Enabled',
+                    strictoType: 'Bool',
+                    required: false,
+                    defaultValue: null,
+                    writable: true,
+                },
+            ],
+            variants: [],
+        }
+
+        const source = render_display_item_component(item)
+
+        expect(source).toContain('"is_enabled": true')
+    })
+
     it('renders display component for mixed supported types', () => {
         const item: FirItem = {
             collectionName: 'product_metrics',
