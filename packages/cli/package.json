@@ -19,7 +19,7 @@
     },
     "scripts": {
         "build": "tsdown",
-        "test": "echo '@backo-stricto/fronto-cli tests not implemented' && exit 0",
+        "test": "vitest run ./tests",
         "lint": "eslint . --fix-dry-run --cache --cache-location ./node_modules/.cache/eslint/",
         "clean": "rm -rf dist"
     },
