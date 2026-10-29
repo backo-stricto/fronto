@@ -2,16 +2,20 @@
  * Render Vue SFC source strings for generated Item components.
  *
  * Scope:
- * - Bool item fields only (first implementation)
+ * - Item fields of types: Bool, Int, Float, String, Datetime, Bytes
  * - display and input templates
  */
 import type { FirField, FirItem } from './generate_fir.js'
+import type { FieldTypeTemplate, SupportedFieldType } from './item_templates/index.js'
+import { get_field_template } from './item_templates/index.js'
 
-type BoolFieldRenderModel = {
+type SupportedFieldRenderModel = {
     key: string
     label: string
-    defaultValue: boolean
     writable: boolean
+    strictoType: SupportedFieldType
+    template: FieldTypeTemplate
+    defaultValue: unknown
 }
 
 type InputItemApiRoutes = {
@@ -26,38 +30,108 @@ type InputItemApiRoutes = {
 }
 
 function render_display_item_component(item: FirItem): string {
-    const boolFields = build_bool_fields_model(item.fields)
-    const fieldOrder = boolFields.map((field) => field.key)
+    const supportedFields = build_supported_fields_model(item.fields)
+    const fieldOrder = supportedFields.map((field) => field.key)
     const defaultValues = Object.fromEntries(
-        boolFields.map((field) => [field.key, field.defaultValue]),
+        supportedFields.map((field) => [field.key, field.defaultValue]),
     )
-    const labels = Object.fromEntries(boolFields.map((field) => [field.key, field.label]))
+    const labels = Object.fromEntries(supportedFields.map((field) => [field.key, field.label]))
+    const fieldTypes = Object.fromEntries(
+        supportedFields.map((field) => [field.key, field.strictoType]),
+    ) as Record<string, SupportedFieldType>
 
     return `<script setup lang="ts">
 import { resolveFrontoProps, type FrontoProps } from '@backo-stricto/fronto-core'
+import { resolveFrontoComponent } from '../registry'
 import DisplayField from '../base/DisplayField.vue'
-import Bool from '../base/display/Bool.vue'
+
+type SupportedFieldType = 'Bool' | 'Int' | 'Float' | 'String' | 'Datetime' | 'Bytes'
 
 const props = defineProps<FrontoProps<'Item'>>()
 
 const FIELD_ORDER = ${JSON.stringify(fieldOrder, null, 4)}
-const FIELD_DEFAULTS: Record<string, boolean> = ${JSON.stringify(defaultValues, null, 4)}
+const FIELD_DEFAULTS: Record<string, unknown> = ${JSON.stringify(defaultValues, null, 4)}
 const FIELD_LABELS: Record<string, string> = ${JSON.stringify(labels, null, 4)}
+const FIELD_TYPES: Record<string, SupportedFieldType> = ${JSON.stringify(fieldTypes, null, 4)}
 
-function resolveFieldValue(key: string): boolean {
-    const incomingValue = (props.value as Record<string, unknown> | undefined)?.[key]
-    if (typeof incomingValue === 'boolean') {
-        return incomingValue
+function normalizeDatetime(value: unknown): string | undefined {
+    if (typeof value !== 'string' && !(value instanceof Date)) {
+        return undefined
     }
-    return FIELD_DEFAULTS[key] ?? false
+
+    const date = value instanceof Date ? value : new Date(value)
+    if (Number.isNaN(date.getTime())) {
+        return undefined
+    }
+
+    return date.toISOString()
 }
 
-function resolveBoolProps(key: string) {
-    return resolveFrontoProps('Bool', {
-        value: resolveFieldValue(key),
-        defaultValue: FIELD_DEFAULTS[key],
+const BASE64_PATTERN =
+    /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/
+
+function normalizeBytes(value: unknown): string | undefined {
+    if (typeof value !== 'string' || !BASE64_PATTERN.test(value)) {
+        return undefined
+    }
+
+    try {
+        return btoa(atob(value)) === value ? value : undefined
+    } catch {
+        return undefined
+    }
+}
+
+function normalizeFieldValue(fieldType: SupportedFieldType, value: unknown): unknown | undefined {
+    if (fieldType === 'Bool') {
+        return typeof value === 'boolean' ? value : undefined
+    }
+    if (fieldType === 'Int') {
+        return typeof value === 'number' && Number.isInteger(value) ? value : undefined
+    }
+    if (fieldType === 'Float') {
+        return typeof value === 'number' && Number.isFinite(value) ? value : undefined
+    }
+    if (fieldType === 'String') {
+        return typeof value === 'string' ? value : undefined
+    }
+    if (fieldType === 'Datetime') {
+        return normalizeDatetime(value)
+    }
+    return normalizeBytes(value)
+}
+
+function resolveFieldType(fieldKey: string): SupportedFieldType {
+    return FIELD_TYPES[fieldKey] ?? 'String'
+}
+
+function resolveFieldValue(fieldKey: string): unknown {
+    const fieldType = resolveFieldType(fieldKey)
+    const incomingValue = (props.value as Record<string, unknown> | undefined)?.[fieldKey]
+    const normalizedIncoming = normalizeFieldValue(fieldType, incomingValue)
+    if (normalizedIncoming !== undefined) {
+        return normalizedIncoming
+    }
+
+    const normalizedDefault = normalizeFieldValue(fieldType, FIELD_DEFAULTS[fieldKey])
+    if (normalizedDefault !== undefined) {
+        return normalizedDefault
+    }
+
+    return FIELD_DEFAULTS[fieldKey]
+}
+
+function resolveFieldProps(fieldKey: string) {
+    const fieldType = resolveFieldType(fieldKey)
+    return resolveFrontoProps(fieldType, {
+        value: resolveFieldValue(fieldKey),
+        defaultValue: FIELD_DEFAULTS[fieldKey],
         writable: false,
     })
+}
+
+function resolveDisplayComponent(fieldKey: string): unknown {
+    return resolveFrontoComponent(resolveFieldType(fieldKey), 'display')
 }
 </script>
 
@@ -75,7 +149,9 @@ function resolveBoolProps(key: string) {
                     :key="fieldKey"
                     class="flex items-center gap-3">
                     <span class="min-w-40 font-semibold">{{ FIELD_LABELS[fieldKey] }}</span>
-                    <Bool v-bind="resolveBoolProps(fieldKey)" />
+                    <component
+                        :is="resolveDisplayComponent(fieldKey)"
+                        v-bind="resolveFieldProps(fieldKey)" />
                 </div>
             </div>
         </template>
@@ -85,24 +161,28 @@ function resolveBoolProps(key: string) {
 }
 
 function render_input_item_component(item: FirItem, inputApiRoutes: InputItemApiRoutes): string {
-    const boolFields = build_bool_fields_model(item.fields)
-    const fieldOrder = boolFields.map((field) => field.key)
+    const supportedFields = build_supported_fields_model(item.fields)
+    const fieldOrder = supportedFields.map((field) => field.key)
     const defaultValues = Object.fromEntries(
-        boolFields.map((field) => [field.key, field.defaultValue]),
+        supportedFields.map((field) => [field.key, field.defaultValue]),
     )
-    const labels = Object.fromEntries(boolFields.map((field) => [field.key, field.label]))
+    const labels = Object.fromEntries(supportedFields.map((field) => [field.key, field.label]))
     const writableByField = Object.fromEntries(
-        boolFields.map((field) => [field.key, field.writable]),
+        supportedFields.map((field) => [field.key, field.writable]),
     )
+    const fieldTypes = Object.fromEntries(
+        supportedFields.map((field) => [field.key, field.strictoType]),
+    ) as Record<string, SupportedFieldType>
 
     return `<script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { resolveFrontoProps, type FrontoProps } from '@backo-stricto/fronto-core'
+import { resolveFrontoComponent } from '../registry'
 import InputField from '../base/InputField.vue'
-import Bool from '../base/input/Bool.vue'
 
 type InputMode = 'auto' | 'create' | 'edit'
 type ResolvedMode = 'create' | 'edit'
+type SupportedFieldType = 'Bool' | 'Int' | 'Float' | 'String' | 'Datetime' | 'Bytes'
 
 type ItemInputProps = FrontoProps<'Item'> & {
     mode?: InputMode
@@ -118,13 +198,13 @@ type ApplyEventPayload = {
 }
 
 // Mode resolution matrix:
-// - mode=create + no id     => create
-// - mode=create + valid id  => warn and coerce to edit
-// - mode=edit   + valid id  => edit
+// - mode=create + no id      => create
+// - mode=create + valid id   => warn and coerce to edit
+// - mode=edit   + valid id   => edit
 // - mode=edit   + missing id => error
-// - mode=auto   + valid id  => edit
-// - mode=auto   + no id     => create
-// - any invalid id          => error
+// - mode=auto   + valid id   => edit
+// - mode=auto   + no id      => create
+// - any invalid id           => error
 
 const props = defineProps<ItemInputProps>()
 
@@ -137,9 +217,10 @@ const emit = defineEmits<{
 }>()
 
 const FIELD_ORDER = ${JSON.stringify(fieldOrder, null, 4)}
-const FIELD_DEFAULTS: Record<string, boolean> = ${JSON.stringify(defaultValues, null, 4)}
+const FIELD_DEFAULTS: Record<string, unknown> = ${JSON.stringify(defaultValues, null, 4)}
 const FIELD_LABELS: Record<string, string> = ${JSON.stringify(labels, null, 4)}
 const FIELD_WRITABLE: Record<string, boolean> = ${JSON.stringify(writableByField, null, 4)}
+const FIELD_TYPES: Record<string, SupportedFieldType> = ${JSON.stringify(fieldTypes, null, 4)}
 const INPUT_API_ROUTES: {
     defaultApiBaseUrl: string
     collectionPath: string
@@ -151,30 +232,83 @@ const INPUT_API_ROUTES: {
     canCheck: boolean
 } = ${JSON.stringify(inputApiRoutes, null, 4)}
 
-type InputState = Record<string, boolean>
+type InputState = Record<string, unknown>
 type IdResolution =
     | { kind: 'missing' }
     | { kind: 'valid'; id: string }
     | { kind: 'invalid'; reason: string }
 
-function resolveInitialBooleanValue(fieldKey: string, incoming: Record<string, unknown> | undefined): boolean {
+function normalizeDatetime(value: unknown): string | undefined {
+    if (typeof value !== 'string' && !(value instanceof Date)) {
+        return undefined
+    }
+
+    const date = value instanceof Date ? value : new Date(value)
+    if (Number.isNaN(date.getTime())) {
+        return undefined
+    }
+
+    return date.toISOString()
+}
+
+const BASE64_PATTERN =
+    /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/
+
+function normalizeBytes(value: unknown): string | undefined {
+    if (typeof value !== 'string' || !BASE64_PATTERN.test(value)) {
+        return undefined
+    }
+
+    try {
+        return btoa(atob(value)) === value ? value : undefined
+    } catch {
+        return undefined
+    }
+}
+
+function normalizeFieldValue(fieldType: SupportedFieldType, value: unknown): unknown | undefined {
+    if (fieldType === 'Bool') {
+        return typeof value === 'boolean' ? value : undefined
+    }
+    if (fieldType === 'Int') {
+        return typeof value === 'number' && Number.isInteger(value) ? value : undefined
+    }
+    if (fieldType === 'Float') {
+        return typeof value === 'number' && Number.isFinite(value) ? value : undefined
+    }
+    if (fieldType === 'String') {
+        return typeof value === 'string' ? value : undefined
+    }
+    if (fieldType === 'Datetime') {
+        return normalizeDatetime(value)
+    }
+    return normalizeBytes(value)
+}
+
+function resolveFieldType(fieldKey: string): SupportedFieldType {
+    return FIELD_TYPES[fieldKey] ?? 'String'
+}
+
+function resolveInitialFieldValue(fieldKey: string, incoming: Record<string, unknown> | undefined): unknown {
+    const fieldType = resolveFieldType(fieldKey)
     const incomingValue = incoming?.[fieldKey]
-    if (typeof incomingValue === 'boolean') {
-        return incomingValue
+    const normalizedIncoming = normalizeFieldValue(fieldType, incomingValue)
+    if (normalizedIncoming !== undefined) {
+        return normalizedIncoming
     }
 
-    const schemaDefault = FIELD_DEFAULTS[fieldKey]
-    if (typeof schemaDefault === 'boolean') {
-        return schemaDefault
+    const normalizedDefault = normalizeFieldValue(fieldType, FIELD_DEFAULTS[fieldKey])
+    if (normalizedDefault !== undefined) {
+        return normalizedDefault
     }
 
-    return false
+    return FIELD_DEFAULTS[fieldKey]
 }
 
 function createInitialDraft(incoming: Record<string, unknown> | undefined): InputState {
     const draft: InputState = {}
     for (const fieldKey of FIELD_ORDER) {
-        draft[fieldKey] = resolveInitialBooleanValue(fieldKey, incoming)
+        draft[fieldKey] = resolveInitialFieldValue(fieldKey, incoming)
     }
     return draft
 }
@@ -407,20 +541,30 @@ function updateField(fieldKey: string, nextValue: unknown): void {
         return
     }
 
-    const boolValue = nextValue === true
+    const fieldType = resolveFieldType(fieldKey)
+    const normalizedValue = normalizeFieldValue(fieldType, nextValue)
+    if (normalizedValue === undefined) {
+        return
+    }
+
     draftValue.value = {
         ...draftValue.value,
-        [fieldKey]: boolValue,
+        [fieldKey]: normalizedValue,
     }
     emit('update:value', { ...draftValue.value })
 }
 
-function resolveBoolProps(fieldKey: string, disabled: boolean) {
-    return resolveFrontoProps('Bool', {
+function resolveFieldProps(fieldKey: string, disabled: boolean) {
+    const fieldType = resolveFieldType(fieldKey)
+    return resolveFrontoProps(fieldType, {
         value: draftValue.value[fieldKey],
         defaultValue: FIELD_DEFAULTS[fieldKey],
         writable: resolveWritable(fieldKey, disabled),
     })
+}
+
+function resolveInputComponent(fieldKey: string): unknown {
+    return resolveFrontoComponent(resolveFieldType(fieldKey), 'input')
 }
 
 async function onApply(): Promise<void> {
@@ -507,8 +651,9 @@ function onCancel(): void {
                         :key="fieldKey"
                         class="flex items-center gap-3">
                         <span class="min-w-40 font-semibold">{{ FIELD_LABELS[fieldKey] }}</span>
-                        <Bool
-                            v-bind="resolveBoolProps(fieldKey, disabled)"
+                        <component
+                            :is="resolveInputComponent(fieldKey)"
+                            v-bind="resolveFieldProps(fieldKey, disabled)"
                             @update:value="updateField(fieldKey, $event)" />
                     </div>
                 </div>
@@ -534,15 +679,30 @@ function onCancel(): void {
 `
 }
 
-function build_bool_fields_model(fields: FirField[]): BoolFieldRenderModel[] {
-    return fields
-        .filter((field) => field.strictoType === 'Bool')
-        .map((field) => ({
+function build_supported_fields_model(fields: FirField[]): SupportedFieldRenderModel[] {
+    const supportedFields: SupportedFieldRenderModel[] = []
+
+    for (const field of fields) {
+        const template = get_field_template(field.strictoType)
+        if (!template) {
+            continue
+        }
+
+        const normalizedDefaultValue = template.normalizeValue(field.defaultValue)
+        supportedFields.push({
             key: field.key,
             label: field.label,
-            defaultValue: field.defaultValue === true,
             writable: field.writable,
-        }))
+            strictoType: template.strictoType,
+            template,
+            defaultValue:
+                normalizedDefaultValue !== undefined
+                    ? normalizedDefaultValue
+                    : template.fallbackValue,
+        })
+    }
+
+    return supportedFields
 }
 
 export { render_display_item_component, render_input_item_component }
