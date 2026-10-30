@@ -21,13 +21,13 @@ type InputApiRoutesShape = {
 
 const INPUT_SCRIPT_HEAD = `<script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { resolveFrontoProps, type FrontoProps } from '@backo-stricto/fronto-core'
+import { resolveFrontoProps, type FrontoProps, type FrontoScalarType } from '@backo-stricto/fronto-core'
 import { resolveFrontoComponent } from '../registry'
 import InputField from '../base/InputField.vue'
 
 type InputMode = 'auto' | 'create' | 'edit'
 type ResolvedMode = 'create' | 'edit'
-type SupportedFieldType = 'Bool' | 'Int' | 'Float' | 'String' | 'Datetime' | 'Bytes'
+type SupportedFieldType = FrontoScalarType
 
 type ItemInputProps = FrontoProps<'Item'> & {
     mode?: InputMode

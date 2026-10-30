@@ -1,4 +1,6 @@
-type SupportedFieldType = 'Bool' | 'Int' | 'Float' | 'String' | 'Datetime' | 'Bytes'
+import type { FrontoScalarType } from '@backo-stricto/fronto-core'
+
+type SupportedFieldType = FrontoScalarType
 
 type FieldTypeTemplate = {
     strictoType: SupportedFieldType

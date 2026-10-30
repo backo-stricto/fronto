@@ -10,11 +10,11 @@ type DisplayTemplateData = {
 type DisplayTemplateModel = DisplayTemplateData
 
 const DISPLAY_SCRIPT_HEAD = `<script setup lang="ts">
-import { resolveFrontoProps, type FrontoProps } from '@backo-stricto/fronto-core'
+import { resolveFrontoProps, type FrontoProps, type FrontoScalarType } from '@backo-stricto/fronto-core'
 import { resolveFrontoComponent } from '../registry'
 import DisplayField from '../base/DisplayField.vue'
 
-type SupportedFieldType = 'Bool' | 'Int' | 'Float' | 'String' | 'Datetime' | 'Bytes'
+type SupportedFieldType = FrontoScalarType
 
 const props = defineProps<FrontoProps<'Item'>>()
 

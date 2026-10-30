@@ -5,6 +5,11 @@ export const FrontoVariants = FRONTO_VARIANTS
 
 export type FrontoComponentVariant = (typeof FRONTO_VARIANTS)[number]
 
+export type FrontoStrictoTypeManifestEntry = {
+    isScalar: boolean
+    supportedVariants: readonly FrontoComponentVariant[]
+}
+
 export const FRONTO_STRICTO_TYPES = [
     'Bool',
     'Int',
@@ -23,6 +28,20 @@ export const FRONTO_STRICTO_TYPES = [
 export const StrictoTypes = FRONTO_STRICTO_TYPES
 
 export type FrontoStrictoType = (typeof FRONTO_STRICTO_TYPES)[number]
+
+export const FRONTO_STRICTO_MANIFEST: Record<FrontoStrictoType, FrontoStrictoTypeManifestEntry> = {
+    Bool: { isScalar: true, supportedVariants: ['input', 'display', 'cell'] },
+    Int: { isScalar: true, supportedVariants: ['input', 'display', 'cell'] },
+    Float: { isScalar: true, supportedVariants: ['input', 'display', 'cell'] },
+    String: { isScalar: true, supportedVariants: ['input', 'display', 'cell'] },
+    Datetime: { isScalar: true, supportedVariants: ['input', 'display', 'cell'] },
+    Bytes: { isScalar: true, supportedVariants: ['input', 'display', 'cell'] },
+    List: { isScalar: false, supportedVariants: ['input', 'display'] },
+    Dict: { isScalar: false, supportedVariants: ['input', 'display'] },
+    Item: { isScalar: false, supportedVariants: ['input', 'display'] },
+    Ref: { isScalar: false, supportedVariants: ['input', 'display'] },
+    RefsList: { isScalar: false, supportedVariants: ['input', 'display'] },
+}
 
 export interface FrontoValidationMessage {
     path: string
