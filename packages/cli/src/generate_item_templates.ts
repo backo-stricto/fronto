@@ -7,7 +7,7 @@
  */
 import type { FirField, FirItem } from './generate_fir.js'
 import { resolveFrontoScalarDefaultValue } from '@backo-stricto/fronto-core'
-import type { FieldTypeTemplate, SupportedFieldType } from './item_templates/index.js'
+import type { SupportedFieldType } from './item_templates/index.js'
 import { get_field_template } from './item_templates/index.js'
 
 type SupportedFieldRenderModel = {
@@ -15,7 +15,6 @@ type SupportedFieldRenderModel = {
     label: string
     writable: boolean
     strictoType: SupportedFieldType
-    template: FieldTypeTemplate
     defaultValue: unknown
 }
 
@@ -30,18 +29,18 @@ type InputItemApiRoutes = {
     canCheck: boolean
 }
 
-function render_display_item_component(item: FirItem): string {
-    const supportedFields = build_supported_fields_model(item.fields)
-    const fieldOrder = supportedFields.map((field) => field.key)
-    const defaultValues = Object.fromEntries(
-        supportedFields.map((field) => [field.key, field.defaultValue]),
-    )
-    const labels = Object.fromEntries(supportedFields.map((field) => [field.key, field.label]))
-    const fieldTypes = Object.fromEntries(
-        supportedFields.map((field) => [field.key, field.strictoType]),
-    ) as Record<string, SupportedFieldType>
+type DisplayFieldConstants = {
+    fieldOrder: string[]
+    defaultValues: Record<string, unknown>
+    labels: Record<string, string>
+    fieldTypes: Record<string, SupportedFieldType>
+}
 
-    return `<script setup lang="ts">
+type InputFieldConstants = DisplayFieldConstants & {
+    writableByField: Record<string, boolean>
+}
+
+const DISPLAY_SCRIPT_HEAD = `<script setup lang="ts">
 import { resolveFrontoProps, type FrontoProps } from '@backo-stricto/fronto-core'
 import { resolveFrontoComponent } from '../registry'
 import DisplayField from '../base/DisplayField.vue'
@@ -50,12 +49,9 @@ type SupportedFieldType = 'Bool' | 'Int' | 'Float' | 'String' | 'Datetime' | 'By
 
 const props = defineProps<FrontoProps<'Item'>>()
 
-const FIELD_ORDER = ${JSON.stringify(fieldOrder, null, 4)}
-const FIELD_DEFAULTS: Record<string, unknown> = ${JSON.stringify(defaultValues, null, 4)}
-const FIELD_LABELS: Record<string, string> = ${JSON.stringify(labels, null, 4)}
-const FIELD_TYPES: Record<string, SupportedFieldType> = ${JSON.stringify(fieldTypes, null, 4)}
+`
 
-function normalizeDatetime(value: unknown): string | undefined {
+const DISPLAY_SCRIPT_BODY_AND_TEMPLATE = `function normalizeDatetime(value: unknown): string | undefined {
     if (typeof value !== 'string' && !(value instanceof Date)) {
         return undefined
     }
@@ -159,23 +155,8 @@ function resolveDisplayComponent(fieldKey: string): unknown {
     </DisplayField>
 </template>
 `
-}
 
-function render_input_item_component(item: FirItem, inputApiRoutes: InputItemApiRoutes): string {
-    const supportedFields = build_supported_fields_model(item.fields)
-    const fieldOrder = supportedFields.map((field) => field.key)
-    const defaultValues = Object.fromEntries(
-        supportedFields.map((field) => [field.key, field.defaultValue]),
-    )
-    const labels = Object.fromEntries(supportedFields.map((field) => [field.key, field.label]))
-    const writableByField = Object.fromEntries(
-        supportedFields.map((field) => [field.key, field.writable]),
-    )
-    const fieldTypes = Object.fromEntries(
-        supportedFields.map((field) => [field.key, field.strictoType]),
-    ) as Record<string, SupportedFieldType>
-
-    return `<script setup lang="ts">
+const INPUT_SCRIPT_HEAD = `<script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { resolveFrontoProps, type FrontoProps } from '@backo-stricto/fronto-core'
 import { resolveFrontoComponent } from '../registry'
@@ -217,23 +198,9 @@ const emit = defineEmits<{
     error: [message: string]
 }>()
 
-const FIELD_ORDER = ${JSON.stringify(fieldOrder, null, 4)}
-const FIELD_DEFAULTS: Record<string, unknown> = ${JSON.stringify(defaultValues, null, 4)}
-const FIELD_LABELS: Record<string, string> = ${JSON.stringify(labels, null, 4)}
-const FIELD_WRITABLE: Record<string, boolean> = ${JSON.stringify(writableByField, null, 4)}
-const FIELD_TYPES: Record<string, SupportedFieldType> = ${JSON.stringify(fieldTypes, null, 4)}
-const INPUT_API_ROUTES: {
-    defaultApiBaseUrl: string
-    collectionPath: string
-    itemPathTemplate: string
-    checkPath: string
-    canCreate: boolean
-    canLoad: boolean
-    canUpdate: boolean
-    canCheck: boolean
-} = ${JSON.stringify(inputApiRoutes, null, 4)}
+`
 
-type InputState = Record<string, unknown>
+const INPUT_SCRIPT_BODY_AND_TEMPLATE = `type InputState = Record<string, unknown>
 type IdResolution =
     | { kind: 'missing' }
     | { kind: 'valid'; id: string }
@@ -678,6 +645,82 @@ function onCancel(): void {
     </InputField>
 </template>
 `
+
+function build_display_field_constants(
+    supportedFields: SupportedFieldRenderModel[],
+): DisplayFieldConstants {
+    return {
+        fieldOrder: supportedFields.map((field) => field.key),
+        defaultValues: Object.fromEntries(
+            supportedFields.map((field) => [field.key, field.defaultValue]),
+        ),
+        labels: Object.fromEntries(supportedFields.map((field) => [field.key, field.label])),
+        fieldTypes: Object.fromEntries(
+            supportedFields.map((field) => [field.key, field.strictoType]),
+        ) as Record<string, SupportedFieldType>,
+    }
+}
+
+function build_input_field_constants(
+    supportedFields: SupportedFieldRenderModel[],
+): InputFieldConstants {
+    const displayConstants = build_display_field_constants(supportedFields)
+    return {
+        ...displayConstants,
+        writableByField: Object.fromEntries(
+            supportedFields.map((field) => [field.key, field.writable]),
+        ),
+    }
+}
+
+function render_display_constants(constants: DisplayFieldConstants): string {
+    return `const FIELD_ORDER = ${JSON.stringify(constants.fieldOrder, null, 4)}
+const FIELD_DEFAULTS: Record<string, unknown> = ${JSON.stringify(constants.defaultValues, null, 4)}
+const FIELD_LABELS: Record<string, string> = ${JSON.stringify(constants.labels, null, 4)}
+const FIELD_TYPES: Record<string, SupportedFieldType> = ${JSON.stringify(constants.fieldTypes, null, 4)}
+
+`
+}
+
+function render_input_constants(
+    constants: InputFieldConstants,
+    inputApiRoutes: InputItemApiRoutes,
+): string {
+    return `const FIELD_ORDER = ${JSON.stringify(constants.fieldOrder, null, 4)}
+const FIELD_DEFAULTS: Record<string, unknown> = ${JSON.stringify(constants.defaultValues, null, 4)}
+const FIELD_LABELS: Record<string, string> = ${JSON.stringify(constants.labels, null, 4)}
+const FIELD_WRITABLE: Record<string, boolean> = ${JSON.stringify(constants.writableByField, null, 4)}
+const FIELD_TYPES: Record<string, SupportedFieldType> = ${JSON.stringify(constants.fieldTypes, null, 4)}
+const INPUT_API_ROUTES: {
+    defaultApiBaseUrl: string
+    collectionPath: string
+    itemPathTemplate: string
+    checkPath: string
+    canCreate: boolean
+    canLoad: boolean
+    canUpdate: boolean
+    canCheck: boolean
+} = ${JSON.stringify(inputApiRoutes, null, 4)}
+
+`
+}
+
+function render_display_item_component(item: FirItem): string {
+    const supportedFields = build_supported_fields_model(item.fields)
+    const constants = build_display_field_constants(supportedFields)
+    return (
+        DISPLAY_SCRIPT_HEAD + render_display_constants(constants) + DISPLAY_SCRIPT_BODY_AND_TEMPLATE
+    )
+}
+
+function render_input_item_component(item: FirItem, inputApiRoutes: InputItemApiRoutes): string {
+    const supportedFields = build_supported_fields_model(item.fields)
+    const constants = build_input_field_constants(supportedFields)
+    return (
+        INPUT_SCRIPT_HEAD +
+        render_input_constants(constants, inputApiRoutes) +
+        INPUT_SCRIPT_BODY_AND_TEMPLATE
+    )
 }
 
 function build_supported_fields_model(fields: FirField[]): SupportedFieldRenderModel[] {
@@ -695,7 +738,6 @@ function build_supported_fields_model(fields: FirField[]): SupportedFieldRenderM
             label: field.label,
             writable: field.writable,
             strictoType: template.strictoType,
-            template,
             defaultValue:
                 normalizedDefaultValue !== undefined
                     ? normalizedDefaultValue
