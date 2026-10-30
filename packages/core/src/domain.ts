@@ -1,8 +1,5 @@
 export const FRONTO_VARIANTS = ['display', 'input', 'cell'] as const
 
-// Backward-compatible alias.
-export const FrontoVariants = FRONTO_VARIANTS
-
 export type FrontoComponentVariant = (typeof FRONTO_VARIANTS)[number]
 
 export type FrontoStrictoTypeManifestEntry = {
@@ -23,9 +20,6 @@ export const FRONTO_STRICTO_TYPES = [
     'Ref',
     'RefsList',
 ] as const
-
-// Backward-compatible alias.
-export const StrictoTypes = FRONTO_STRICTO_TYPES
 
 export type FrontoStrictoType = (typeof FRONTO_STRICTO_TYPES)[number]
 
