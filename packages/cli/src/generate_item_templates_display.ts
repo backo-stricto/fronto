@@ -132,9 +132,5 @@ const FIELD_TYPES: Record<string, SupportedFieldType> = ${JSON.stringify(data.fi
 `
 }
 
-export {
-    DISPLAY_SCRIPT_BODY_AND_TEMPLATE,
-    DISPLAY_SCRIPT_HEAD,
-    render_display_constants,
-}
+export { DISPLAY_SCRIPT_BODY_AND_TEMPLATE, DISPLAY_SCRIPT_HEAD, render_display_constants }
 export type { DisplayTemplateData }
