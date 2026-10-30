@@ -31,12 +31,13 @@ function doScan(projectPath: string): void {
 
     const baseComponentsRegistry: core.ComponentRegistry = {}
 
-    core.StrictoTypes.forEach((strictoType: string) => {
+    core.FRONTO_STRICTO_TYPES.forEach((strictoType) => {
         baseComponentsRegistry[strictoType] = {}
         const missing: string[] = []
         const overrides: string[] = []
+        const supportedVariants = core.FRONTO_STRICTO_MANIFEST[strictoType].supportedVariants
 
-        core.FrontoVariants.forEach((variant: string) => {
+        supportedVariants.forEach((variant) => {
             const componentFilePath: string = path.join(
                 projectBaseComponentsPath,
                 variant,

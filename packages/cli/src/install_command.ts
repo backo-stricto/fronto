@@ -5,6 +5,19 @@ import * as core from '@backo-stricto/fronto-core'
 import * as tui from './common.js'
 import pc from 'picocolors'
 
+function listSupportedBaseVariants(): core.FrontoComponentVariant[] {
+    const variantSet = new Set<core.FrontoComponentVariant>()
+
+    for (const strictoType of core.FRONTO_STRICTO_TYPES) {
+        const supportedVariants = core.FRONTO_STRICTO_MANIFEST[strictoType].supportedVariants
+        for (const variant of supportedVariants) {
+            variantSet.add(variant)
+        }
+    }
+
+    return core.FRONTO_VARIANTS.filter((variant) => variantSet.has(variant))
+}
+
 function doInstall(projectPath: string, baseFramework: string): void {
     tui.finishLine(
         `${tui.commandInfo('INSTALL')} ${tui.info()} Initializing project at ${pc.inverse(projectPath)} with basic ${pc.inverse(baseFramework)} Fronto components...`,
@@ -50,7 +63,8 @@ function doInstall(projectPath: string, baseFramework: string): void {
         projectPath,
         core.FRONTO_COMPONENTS_OVERRIDES_BASE_PATH,
     )
-    core.FrontoVariants.forEach((variant: string) => {
+    const supportedVariants = listSupportedBaseVariants()
+    supportedVariants.forEach((variant) => {
         const variantOverridesPath: string = path.join(baseOverridesPath, variant)
         fileSystem.mkdirSync(variantOverridesPath, { recursive: true })
         tui.finishLine(
