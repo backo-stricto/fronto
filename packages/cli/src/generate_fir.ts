@@ -82,27 +82,27 @@ const INPUT_INITIAL_VALUE_ORDER: FirInitialValueSource[] = [
 ]
 const WRITABLE_FORMULA = 'collection.modify && field.modify !== false'
 
-function build_fir_from_meta(meta: BackoMetaSchema): FirModel {
+function buildFirFromMeta(meta: BackoMetaSchema): FirModel {
     const collections = meta.collections ?? []
 
     const items: FirItem[] = collections
         .map((collection) => {
             const itemSchema = collection.item
-            if (!itemSchema || !itemSchema.sub_scheme || !is_item_schema(itemSchema)) {
+            if (!itemSchema || !itemSchema.sub_scheme || !isItemSchema(itemSchema)) {
                 return undefined
             }
 
             const collectionWritable = collection.rights?.modify === true
             const fields: FirField[] = Object.entries(itemSchema.sub_scheme)
-                .filter(([key]) => !is_technical_field(key))
+                .filter(([key]) => !isTechnicalField(key))
                 .map(([key, fieldSchema]) => {
-                    const strictoType = resolve_stricto_type(fieldSchema.types)
+                    const strictoType = resolveStrictoType(fieldSchema.types)
                     const fieldModify = fieldSchema.rights?.modify
                     const writable = collectionWritable && fieldModify !== false
 
                     return {
                         key,
-                        label: humanize_key(key),
+                        label: humanizeKey(key),
                         strictoType,
                         required: fieldSchema.required === true,
                         defaultValue: fieldSchema.default ?? null,
@@ -114,7 +114,7 @@ function build_fir_from_meta(meta: BackoMetaSchema): FirModel {
                 return undefined
             }
 
-            const componentNameBase = `${to_pascal_case(collection.name)}Item`
+            const componentNameBase = `${toPascalCase(collection.name)}Item`
             const fieldKeys = fields.map((field) => field.key)
 
             const variants: FirVariant[] = [
@@ -160,15 +160,15 @@ function build_fir_from_meta(meta: BackoMetaSchema): FirModel {
     }
 }
 
-function is_item_schema(fieldSchema: BackoFieldSchema): boolean {
+function isItemSchema(fieldSchema: BackoFieldSchema): boolean {
     return (fieldSchema.types ?? []).includes('Item')
 }
 
-function is_technical_field(key: string): boolean {
+function isTechnicalField(key: string): boolean {
     return key.startsWith('_')
 }
 
-function resolve_stricto_type(types: string[] | undefined): string {
+function resolveStrictoType(types: string[] | undefined): string {
     if (!types || types.length === 0) {
         return 'Unknown'
     }
@@ -178,7 +178,7 @@ function resolve_stricto_type(types: string[] | undefined): string {
     return resolvedType ?? 'Unknown'
 }
 
-function to_pascal_case(value: string): string {
+function toPascalCase(value: string): string {
     return value
         .split(/[^a-zA-Z0-9]/)
         .filter(Boolean)
@@ -186,7 +186,7 @@ function to_pascal_case(value: string): string {
         .join('')
 }
 
-function humanize_key(key: string): string {
+function humanizeKey(key: string): string {
     return key
         .split('_')
         .filter(Boolean)
@@ -203,4 +203,4 @@ export type {
     FirVariant,
     FirVariantName,
 }
-export { build_fir_from_meta }
+export { buildFirFromMeta }

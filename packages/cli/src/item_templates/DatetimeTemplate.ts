@@ -1,6 +1,6 @@
 import type { FieldTypeTemplate } from './template_types.js'
 
-function normalize_datetime(value: unknown): string | undefined {
+function normalizeDatetime(value: unknown): string | undefined {
     if (typeof value !== 'string' && !(value instanceof Date)) {
         return undefined
     }
@@ -16,7 +16,7 @@ function normalize_datetime(value: unknown): string | undefined {
 const DATETIME_TEMPLATE: FieldTypeTemplate = {
     strictoType: 'Datetime',
     normalizeValue(value: unknown): unknown | undefined {
-        return normalize_datetime(value)
+        return normalizeDatetime(value)
     },
 }
 

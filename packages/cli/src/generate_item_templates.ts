@@ -8,7 +8,7 @@
 import type { FirField, FirItem } from './generate_fir.js'
 import { resolveFrontoScalarDefaultValue } from '@backo-stricto/fronto-core'
 import type { SupportedFieldType } from './item_templates/index.js'
-import { get_field_template as getFieldTemplate } from './item_templates/index.js'
+import { getFieldTemplate as getFieldTemplate } from './item_templates/index.js'
 import {
     DISPLAY_SCRIPT_BODY_AND_TEMPLATE,
     DISPLAY_SCRIPT_HEAD,

@@ -5,7 +5,7 @@ import * as core from '@backo-stricto/fronto-core'
 import * as tui from './common.js'
 import pc from 'picocolors'
 
-function do_install(projectPath: string, baseFramework: string): void {
+function doInstall(projectPath: string, baseFramework: string): void {
     tui.finishLine(
         `${tui.commandInfo('INSTALL')} ${tui.info()} Initializing project at ${pc.inverse(projectPath)} with basic ${pc.inverse(baseFramework)} Fronto components...`,
     )
@@ -72,4 +72,4 @@ function do_install(projectPath: string, baseFramework: string): void {
     )
 }
 
-export { do_install }
+export { doInstall }

@@ -1,5 +1,5 @@
 import type { FieldTypeTemplate } from './template_types.js'
-import { is_valid_base64 } from './template_types.js'
+import { isValidBase64 } from './template_types.js'
 
 const BYTES_TEMPLATE: FieldTypeTemplate = {
     strictoType: 'Bytes',
@@ -8,7 +8,7 @@ const BYTES_TEMPLATE: FieldTypeTemplate = {
             return undefined
         }
 
-        return is_valid_base64(value) ? value : undefined
+        return isValidBase64(value) ? value : undefined
     },
 }
 

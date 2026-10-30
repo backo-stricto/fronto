@@ -7,7 +7,7 @@ type FieldTypeTemplate = {
 
 const BASE64_PATTERN = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/
 
-function is_valid_base64(value: string): boolean {
+function isValidBase64(value: string): boolean {
     if (!BASE64_PATTERN.test(value)) {
         return false
     }
@@ -20,4 +20,4 @@ function is_valid_base64(value: string): boolean {
 }
 
 export type { FieldTypeTemplate, SupportedFieldType }
-export { is_valid_base64 }
+export { isValidBase64 }

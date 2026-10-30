@@ -1,8 +1,8 @@
 import { program } from 'commander'
-import { do_install } from './install_command.js'
-import { do_scan } from './scan_command.js'
-import { do_generate } from './generate_command.js'
-import { do_showcase } from './showcase_command.js'
+import { doInstall } from './install_command.js'
+import { doScan } from './scan_command.js'
+import { doGenerate } from './generate_command.js'
+import { doShowcase } from './showcase_command.js'
 import * as tui from './common.js'
 
 type InstallOptions = {
@@ -41,7 +41,7 @@ program
             }
             return
         }
-        do_install(projectPath, options.framework)
+        doInstall(projectPath, options.framework)
     })
 
 program
@@ -70,7 +70,7 @@ program
         'default',
     )
     .action((projectPath: string, options: GenerateOptions) => {
-        do_generate(projectPath, {
+        doGenerate(projectPath, {
             backendUrl: options.backendUrl,
             proxyUrl: options.proxyUrl,
             proxyApiPrefix: options.proxyApiPrefix,
@@ -93,7 +93,7 @@ program
     .description('Scan Fronto components in the current project')
     .argument('<path_to_project>', 'Path to the project directory')
     .action((projectPath: string) => {
-        do_scan(projectPath)
+        doScan(projectPath)
     })
 
 program
@@ -120,6 +120,6 @@ program
             )
             return
         }
-        do_showcase(options.fronto, options.destination)
+        doShowcase(options.fronto, options.destination)
     })
 program.parse(process.argv)

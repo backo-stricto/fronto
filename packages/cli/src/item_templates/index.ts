@@ -15,9 +15,9 @@ const FIELD_TEMPLATES_BY_TYPE: Record<SupportedFieldType, FieldTypeTemplate> = {
     Bytes: BYTES_TEMPLATE,
 }
 
-function get_field_template(strictoType: string): FieldTypeTemplate | undefined {
+function getFieldTemplate(strictoType: string): FieldTypeTemplate | undefined {
     return FIELD_TEMPLATES_BY_TYPE[strictoType as SupportedFieldType]
 }
 
 export type { FieldTypeTemplate, SupportedFieldType }
-export { FIELD_TEMPLATES_BY_TYPE, get_field_template }
+export { FIELD_TEMPLATES_BY_TYPE, getFieldTemplate }

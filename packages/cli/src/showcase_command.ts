@@ -5,7 +5,7 @@ import * as tui from './common.js'
 import pc from 'picocolors'
 import { exit } from 'process'
 
-function do_showcase(frontoComponentsPath: string, projectRootPath: string): void {
+function doShowcase(frontoComponentsPath: string, projectRootPath: string): void {
     tui.finishLine(`${tui.commandInfo('SHOWCASE')} ${tui.info()} Running showcase application `)
     tui.finishLine(
         `${tui.commandInfo('SHOWCASE')} ${tui.info()} Fronto components path [${pc.inverse(frontoComponentsPath)}]`,
@@ -56,10 +56,10 @@ function do_showcase(frontoComponentsPath: string, projectRootPath: string): voi
         `${tui.commandInfo('SHOWCASE')} ${tui.info()} Showcase entry point created successfully at ${pc.inverse(showcaseEntryPointPath)}.`,
     )
     // Generate the showcase registry file
-    generate_showcase_registry_file(frontoComponentsPath, projectRootPath)
+    generateShowcaseRegistryFile(frontoComponentsPath, projectRootPath)
 }
 
-function generate_showcase_registry_file(
+function generateShowcaseRegistryFile(
     frontoComponentsPath: string,
     projectRootPath: string,
 ): void {
@@ -89,4 +89,4 @@ export {
     })
 }
 
-export { do_showcase }
+export { doShowcase }

@@ -19,7 +19,7 @@ type BuildItemsRegistryResult = {
     sourceByItemName: Record<string, GeneratedItemSource>
 }
 
-function do_scan(projectPath: string): void {
+function doScan(projectPath: string): void {
     const projectBaseComponentsPath: string = path.join(
         projectPath,
         core.FRONTO_COMPONENTS_BASE_PATH,
@@ -91,24 +91,24 @@ function do_scan(projectPath: string): void {
         }
     })
 
-    generate_base_registry_file(projectPath, baseComponentsRegistry)
+    generateBaseRegistryFile(projectPath, baseComponentsRegistry)
 
-    const itemsRegistryResult = build_items_components_registry(projectPath)
-    generate_items_registry_file(projectPath, itemsRegistryResult)
+    const itemsRegistryResult = buildItemsComponentsRegistry(projectPath)
+    generateItemsRegistryFile(projectPath, itemsRegistryResult)
 
     tui.finishLine(
         `${tui.commandInfo('SCAN')} ${tui.success()} Generated registry files: ${pc.inverse('fronto/components/registry.ts')} and ${pc.inverse('fronto/components/registry.items.ts')}`,
     )
 }
 
-function generate_base_registry_file(projectPath: string, registry: core.ComponentRegistry): void {
+function generateBaseRegistryFile(projectPath: string, registry: core.ComponentRegistry): void {
     const registryFilePath: string = path.join(
         projectPath,
         core.FRONTO_COMPONENTS_ROOT_PATH,
         'registry.ts',
     )
 
-    generate_registry_file({
+    generateRegistryFile({
         registryFilePath,
         registry,
         registryName: 'FRONTO_COMPONENTS_REGISTRY',
@@ -118,7 +118,7 @@ function generate_base_registry_file(projectPath: string, registry: core.Compone
     })
 }
 
-function generate_items_registry_file(
+function generateItemsRegistryFile(
     projectPath: string,
     itemsRegistryResult: BuildItemsRegistryResult,
 ): void {
@@ -128,31 +128,31 @@ function generate_items_registry_file(
         'registry.items.ts',
     )
 
-    generate_registry_file({
+    generateRegistryFile({
         registryFilePath,
         registry: itemsRegistryResult.registry,
         registryName: 'FRONTO_ITEMS_COMPONENTS_REGISTRY',
         registryType: 'Record<string, Record<string, object>>',
         resolverName: 'resolveFrontoItemComponent',
         resolverKeyName: 'itemName',
-        postRegistryExports: build_items_source_export(itemsRegistryResult.sourceByItemName),
+        postRegistryExports: buildItemsSourceExport(itemsRegistryResult.sourceByItemName),
     })
 }
 
-function build_items_components_registry(projectPath: string): BuildItemsRegistryResult {
+function buildItemsComponentsRegistry(projectPath: string): BuildItemsRegistryResult {
     const registry: core.ComponentRegistry = {}
     const sourceByItemName: Record<string, GeneratedItemSource> = {}
     const itemsPath = path.join(projectPath, core.FRONTO_COMPONENTS_ITEMS_PATH)
     const itemsOverridesPath = path.join(projectPath, core.FRONTO_COMPONENTS_OVERRIDES_ITEMS_PATH)
 
-    const vanillaFiles = list_vue_files(itemsPath)
-    const overrideFiles = list_vue_files(itemsOverridesPath)
+    const vanillaFiles = listVueFiles(itemsPath)
+    const overrideFiles = listVueFiles(itemsOverridesPath)
 
     const vanillaMap = new Map<string, ScannedItemComponent>()
     const overrideMap = new Map<string, ScannedItemComponent>()
 
     vanillaFiles.forEach((fileName) => {
-        const parsedComponent = parse_item_component(fileName)
+        const parsedComponent = parseItemComponent(fileName)
         if (!parsedComponent) {
             return
         }
@@ -160,7 +160,7 @@ function build_items_components_registry(projectPath: string): BuildItemsRegistr
     })
 
     overrideFiles.forEach((fileName) => {
-        const parsedComponent = parse_item_component(fileName)
+        const parsedComponent = parseItemComponent(fileName)
         if (!parsedComponent) {
             return
         }
@@ -200,7 +200,7 @@ function build_items_components_registry(projectPath: string): BuildItemsRegistr
     }
 }
 
-function parse_item_component(fileName: string): ScannedItemComponent | undefined {
+function parseItemComponent(fileName: string): ScannedItemComponent | undefined {
     if (!fileName.endsWith('.vue')) {
         return undefined
     }
@@ -225,7 +225,7 @@ function parse_item_component(fileName: string): ScannedItemComponent | undefine
     return undefined
 }
 
-function list_vue_files(directoryPath: string): string[] {
+function listVueFiles(directoryPath: string): string[] {
     if (!fileSystem.existsSync(directoryPath)) {
         return []
     }
@@ -246,7 +246,7 @@ type GenerateRegistryFileParams = {
     postRegistryExports?: string
 }
 
-function generate_registry_file(params: GenerateRegistryFileParams): void {
+function generateRegistryFile(params: GenerateRegistryFileParams): void {
     const {
         registryFilePath,
         registry,
@@ -274,7 +274,7 @@ function generate_registry_file(params: GenerateRegistryFileParams): void {
             const componentPath = registry[outerKey][variant]
             let importIdentifier = importIdentifiersByPath.get(componentPath)
             if (!importIdentifier) {
-                importIdentifier = to_unique_identifier(`${outerKey}_${variant}`, usedIdentifiers)
+                importIdentifier = toUniqueIdentifier(`${outerKey}_${variant}`, usedIdentifiers)
                 importIdentifiersByPath.set(componentPath, importIdentifier)
             }
 
@@ -292,7 +292,7 @@ function generate_registry_file(params: GenerateRegistryFileParams): void {
 
     fileSystem.writeFileSync(registryFilePath, '\n', { flag: 'a', encoding: 'utf-8' })
 
-    const registryRecordString = generate_components_registry_literal(
+    const registryRecordString = generateComponentsRegistryLiteral(
         registryRecord,
         registryName,
         registryType,
@@ -313,7 +313,7 @@ function generate_registry_file(params: GenerateRegistryFileParams): void {
     }
 }
 
-function build_items_source_export(sourceByItemName: Record<string, GeneratedItemSource>): string {
+function buildItemsSourceExport(sourceByItemName: Record<string, GeneratedItemSource>): string {
     const sortedItemNames = Object.keys(sourceByItemName).sort((a, b) => a.localeCompare(b))
 
     let output = `export const FRONTO_ITEMS_COMPONENTS_SOURCE: Record<string, 'vanilla' | 'override'> = {\n`
@@ -325,7 +325,7 @@ function build_items_source_export(sourceByItemName: Record<string, GeneratedIte
     return output
 }
 
-function to_unique_identifier(seed: string, usedIdentifiers: Set<string>): string {
+function toUniqueIdentifier(seed: string, usedIdentifiers: Set<string>): string {
     const normalizedSeed = seed.replace(/[^A-Za-z0-9_]/g, '_')
     const firstIdentifier = /^[A-Za-z_]/.test(normalizedSeed)
         ? normalizedSeed
@@ -342,7 +342,7 @@ function to_unique_identifier(seed: string, usedIdentifiers: Set<string>): strin
     return candidate
 }
 
-function generate_components_registry_literal(
+function generateComponentsRegistryLiteral(
     registryRecord: core.ComponentRegistry,
     registryName: string,
     registryType: string,
@@ -362,13 +362,13 @@ function generate_components_registry_literal(
     return output
 }
 
-function generate_fronto_components_registry(registryRecord: core.ComponentRegistry): string {
-    return generate_components_registry_literal(
+function generateFrontoComponentsRegistry(registryRecord: core.ComponentRegistry): string {
+    return generateComponentsRegistryLiteral(
         registryRecord,
         'FRONTO_COMPONENTS_REGISTRY',
         'Record<StrictoType, Record<FrontoVariant, object>>',
     )
 }
 
-export { generate_fronto_components_registry }
-export { do_scan }
+export { generateFrontoComponentsRegistry }
+export { doScan }
