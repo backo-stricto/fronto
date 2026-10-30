@@ -8,18 +8,18 @@
 import type { FirField, FirItem } from './generate_fir.js'
 import { resolveFrontoScalarDefaultValue } from '@backo-stricto/fronto-core'
 import type { SupportedFieldType } from './item_templates/index.js'
-import { get_field_template } from './item_templates/index.js'
+import { get_field_template as getFieldTemplate } from './item_templates/index.js'
 import {
     DISPLAY_SCRIPT_BODY_AND_TEMPLATE,
     DISPLAY_SCRIPT_HEAD,
-    render_display_constants,
-    type DisplayTemplateData,
+    renderDisplayConstants,
+    type DisplayTemplateModel,
 } from './generate_item_templates_display.js'
 import {
     INPUT_SCRIPT_BODY_AND_TEMPLATE,
     INPUT_SCRIPT_HEAD,
-    render_input_constants,
-    type InputTemplateData,
+    renderInputConstants,
+    type InputTemplateModel,
 } from './generate_item_templates_input.js'
 
 type SupportedFieldRenderModel = {
@@ -52,7 +52,7 @@ type InputFieldConstants = DisplayFieldConstants & {
     writableByField: Record<string, boolean>
 }
 
-function build_display_field_constants(
+function buildDisplayFieldConstants(
     supportedFields: SupportedFieldRenderModel[],
 ): DisplayFieldConstants {
     return {
@@ -67,10 +67,10 @@ function build_display_field_constants(
     }
 }
 
-function build_input_field_constants(
+function buildInputFieldConstants(
     supportedFields: SupportedFieldRenderModel[],
 ): InputFieldConstants {
-    const displayConstants = build_display_field_constants(supportedFields)
+    const displayConstants = buildDisplayFieldConstants(supportedFields)
     return {
         ...displayConstants,
         writableByField: Object.fromEntries(
@@ -79,29 +79,29 @@ function build_input_field_constants(
     }
 }
 
-function render_display_item_component(item: FirItem): string {
-    const supportedFields = build_supported_fields_model(item.fields)
-    const constants: DisplayTemplateData = build_display_field_constants(supportedFields)
+function renderDisplayItemComponent(item: FirItem): string {
+    const supportedFields = buildSupportedFieldsModel(item.fields)
+    const constants: DisplayTemplateModel = buildDisplayFieldConstants(supportedFields)
     return (
-        DISPLAY_SCRIPT_HEAD + render_display_constants(constants) + DISPLAY_SCRIPT_BODY_AND_TEMPLATE
+        DISPLAY_SCRIPT_HEAD + renderDisplayConstants(constants) + DISPLAY_SCRIPT_BODY_AND_TEMPLATE
     )
 }
 
-function render_input_item_component(item: FirItem, inputApiRoutes: InputItemApiRoutes): string {
-    const supportedFields = build_supported_fields_model(item.fields)
-    const constants: InputTemplateData = build_input_field_constants(supportedFields)
+function renderInputItemComponent(item: FirItem, inputApiRoutes: InputItemApiRoutes): string {
+    const supportedFields = buildSupportedFieldsModel(item.fields)
+    const constants: InputTemplateModel = buildInputFieldConstants(supportedFields)
     return (
         INPUT_SCRIPT_HEAD +
-        render_input_constants(constants, inputApiRoutes) +
+        renderInputConstants(constants, inputApiRoutes) +
         INPUT_SCRIPT_BODY_AND_TEMPLATE
     )
 }
 
-function build_supported_fields_model(fields: FirField[]): SupportedFieldRenderModel[] {
+function buildSupportedFieldsModel(fields: FirField[]): SupportedFieldRenderModel[] {
     const supportedFields: SupportedFieldRenderModel[] = []
 
     for (const field of fields) {
-        const template = get_field_template(field.strictoType)
+        const template = getFieldTemplate(field.strictoType)
         if (!template) {
             continue
         }
@@ -122,5 +122,5 @@ function build_supported_fields_model(fields: FirField[]): SupportedFieldRenderM
     return supportedFields
 }
 
-export { render_display_item_component, render_input_item_component }
+export { renderDisplayItemComponent, renderInputItemComponent }
 export type { InputItemApiRoutes }

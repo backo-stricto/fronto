@@ -1,6 +1,6 @@
 import type { SupportedFieldType } from './item_templates/index.js'
 
-type InputTemplateData = {
+type InputTemplateModel = {
     fieldOrder: string[]
     defaultValues: Record<string, unknown>
     labels: Record<string, string>
@@ -509,8 +509,8 @@ function onCancel(): void {
 </template>
 `
 
-function render_input_constants(
-    data: InputTemplateData,
+function renderInputConstants(
+    data: InputTemplateModel,
     inputApiRoutes: InputApiRoutesShape,
 ): string {
     return `const FIELD_ORDER = ${JSON.stringify(data.fieldOrder, null, 4)}
@@ -532,5 +532,5 @@ const INPUT_API_ROUTES: {
 `
 }
 
-export { INPUT_SCRIPT_BODY_AND_TEMPLATE, INPUT_SCRIPT_HEAD, render_input_constants }
-export type { InputTemplateData }
+export { INPUT_SCRIPT_BODY_AND_TEMPLATE, INPUT_SCRIPT_HEAD, renderInputConstants }
+export type { InputTemplateModel }

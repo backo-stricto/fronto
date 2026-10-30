@@ -7,6 +7,8 @@ type DisplayTemplateData = {
     fieldTypes: Record<string, SupportedFieldType>
 }
 
+type DisplayTemplateModel = DisplayTemplateData
+
 const DISPLAY_SCRIPT_HEAD = `<script setup lang="ts">
 import { resolveFrontoProps, type FrontoProps } from '@backo-stricto/fronto-core'
 import { resolveFrontoComponent } from '../registry'
@@ -123,7 +125,7 @@ function resolveDisplayComponent(fieldKey: string): unknown {
 </template>
 `
 
-function render_display_constants(data: DisplayTemplateData): string {
+function renderDisplayConstants(data: DisplayTemplateModel): string {
     return `const FIELD_ORDER = ${JSON.stringify(data.fieldOrder, null, 4)}
 const FIELD_DEFAULTS: Record<string, unknown> = ${JSON.stringify(data.defaultValues, null, 4)}
 const FIELD_LABELS: Record<string, string> = ${JSON.stringify(data.labels, null, 4)}
@@ -132,5 +134,5 @@ const FIELD_TYPES: Record<string, SupportedFieldType> = ${JSON.stringify(data.fi
 `
 }
 
-export { DISPLAY_SCRIPT_BODY_AND_TEMPLATE, DISPLAY_SCRIPT_HEAD, render_display_constants }
-export type { DisplayTemplateData }
+export { DISPLAY_SCRIPT_BODY_AND_TEMPLATE, DISPLAY_SCRIPT_HEAD, renderDisplayConstants }
+export type { DisplayTemplateModel }

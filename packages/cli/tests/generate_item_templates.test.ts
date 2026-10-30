@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
-    render_display_item_component,
-    render_input_item_component,
+    renderDisplayItemComponent,
+    renderInputItemComponent,
     type InputItemApiRoutes,
 } from '../src/generate_item_templates.js'
 import type { FirItem } from '../src/generate_fir.js'
@@ -35,7 +35,7 @@ describe('generate_item_templates', () => {
             variants: [],
         }
 
-        const source = render_display_item_component(item)
+        const source = renderDisplayItemComponent(item)
 
         expect(source).toContain('"is_enabled": true')
     })
@@ -97,7 +97,7 @@ describe('generate_item_templates', () => {
             variants: [],
         }
 
-        const source = render_display_item_component(item)
+        const source = renderDisplayItemComponent(item)
 
         expect(source).toContain("import { resolveFrontoComponent } from '../registry'")
         expect(source).toContain('const FIELD_TYPES: Record<string, SupportedFieldType> =')
@@ -166,7 +166,7 @@ describe('generate_item_templates', () => {
             variants: [],
         }
 
-        const source = render_input_item_component(item, INPUT_ROUTES)
+        const source = renderInputItemComponent(item, INPUT_ROUTES)
 
         expect(source).toContain("import { resolveFrontoComponent } from '../registry'")
         expect(source).toContain('"load_ratio": false')
@@ -204,7 +204,7 @@ describe('generate_item_templates', () => {
             variants: [],
         }
 
-        const source = render_display_item_component(item)
+        const source = renderDisplayItemComponent(item)
 
         expect(source).toContain('"is_enabled"')
         expect(source).not.toContain('"legacy_ref"')

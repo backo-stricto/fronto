@@ -11,9 +11,9 @@ import {
     type FirVariant,
 } from './generate_fir.js'
 import {
-    render_display_item_component,
+    renderDisplayItemComponent,
     type InputItemApiRoutes,
-    render_input_item_component,
+    renderInputItemComponent,
 } from './generate_item_templates.js'
 
 const META_URL_SUFFIX = '_meta'
@@ -139,9 +139,9 @@ function render_component_for_variant(
     inputRoutes: InputItemApiRoutes,
 ): string {
     if (variant.name === 'display') {
-        return render_display_item_component(item)
+        return renderDisplayItemComponent(item)
     }
-    return render_input_item_component(item, inputRoutes)
+    return renderInputItemComponent(item, inputRoutes)
 }
 
 function build_input_routes_by_collection(
